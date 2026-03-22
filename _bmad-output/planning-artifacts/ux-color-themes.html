@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bmad-todo-app Color Themes</title>
+    <style>
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: #f4f1ea;
+        color: #17303f;
+      }
+      .page {
+        width: min(1200px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 64px;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(30px, 4vw, 52px);
+        letter-spacing: -0.04em;
+      }
+      p {
+        margin: 0 0 28px;
+        color: #586974;
+        line-height: 1.6;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      }
+      .theme {
+        border-radius: 24px;
+        overflow: hidden;
+        background: rgba(255,255,255,0.7);
+        box-shadow: 0 18px 48px rgba(18, 34, 42, 0.08);
+      }
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        height: 120px;
+      }
+      .swatch { position: relative; }
+      .meta {
+        padding: 18px;
+      }
+      .meta h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+      .meta p {
+        margin: 0 0 14px;
+        font-size: 14px;
+      }
+      .sample {
+        border-radius: 18px;
+        padding: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+      }
+      .sample .bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .badge {
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-top: 1px solid rgba(0,0,0,0.06);
+      }
+      .dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        border: 2px solid currentColor;
+      }
+      .done .dot { background: currentColor; }
+      .grow { flex: 1; font-weight: 600; }
+      .hint { font-size: 12px; opacity: 0.7; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>bmad-todo-app Color Themes</h1>
+      <p>Exploration themes based on the selected Soft Calm direction. The first theme is the recommended foundation for the MVP.</p>
+      <div class="grid">
+        <section class="theme">
+          <div class="swatches">
+            <div class="swatch" style="background:#f4f1ea"></div>
+            <div class="swatch" style="background:#fffdfa"></div>
+            <div class="swatch" style="background:#17303f"></div>
+            <div class="swatch" style="background:#2c8b7f"></div>
+            <div class="swatch" style="background:#b44d4d"></div>
+          </div>
+          <div class="meta">
+            <h2>Soft Calm</h2>
+            <p>Warm neutral background, deep ink structure, muted teal action, restrained red error.</p>
+            <div class="sample" style="background:#fffdfa;color:#17303f">
+              <div class="bar">
+                <strong>Today</strong>
+                <span class="badge" style="background:#e5f3f0;color:#2c8b7f">Recommended</span>
+              </div>
+              <div class="row" style="color:#2c8b7f"><span class="dot"></span><span class="grow">Prepare story breakdown</span><span class="hint">Open</span></div>
+              <div class="row done" style="color:#2c8b7f"><span class="dot"></span><span class="grow" style="color:#809099;text-decoration:line-through">Choose design direction</span><span class="hint">Done</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="theme">
+          <div class="swatches">
+            <div class="swatch" style="background:#eef3f4"></div>
+            <div class="swatch" style="background:#ffffff"></div>
+            <div class="swatch" style="background:#1c2d38"></div>
+            <div class="swatch" style="background:#4d8ca3"></div>
+            <div class="swatch" style="background:#c05a45"></div>
+          </div>
+          <div class="meta">
+            <h2>Cool Ledger</h2>
+            <p>Slightly cooler and more product-like, with blue utility accents.</p>
+            <div class="sample" style="background:#ffffff;color:#1c2d38">
+              <div class="bar">
+                <strong>Inbox</strong>
+                <span class="badge" style="background:#e8f1f5;color:#4d8ca3">Structured</span>
+              </div>
+              <div class="row" style="color:#4d8ca3"><span class="dot"></span><span class="grow">Refine API docs</span><span class="hint">Open</span></div>
+              <div class="row done" style="color:#4d8ca3"><span class="dot"></span><span class="grow" style="color:#86959e;text-decoration:line-through">Confirm contrast ratios</span><span class="hint">Done</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="theme">
+          <div class="swatches">
+            <div class="swatch" style="background:#f8f2ea"></div>
+            <div class="swatch" style="background:#fffaf5"></div>
+            <div class="swatch" style="background:#24333d"></div>
+            <div class="swatch" style="background:#a96f3c"></div>
+            <div class="swatch" style="background:#b85c57"></div>
+          </div>
+          <div class="meta">
+            <h2>Warm Paper</h2>
+            <p>A more tactile, paper-like interpretation with amber action accents.</p>
+            <div class="sample" style="background:#fffaf5;color:#24333d">
+              <div class="bar">
+                <strong>Focus</strong>
+                <span class="badge" style="background:#f3e6d9;color:#a96f3c">Gentle</span>
+              </div>
+              <div class="row" style="color:#a96f3c"><span class="dot"></span><span class="grow">Write empty state copy</span><span class="hint">Open</span></div>
+              <div class="row done" style="color:#a96f3c"><span class="dot"></span><span class="grow" style="color:#93837b;text-decoration:line-through">Define spacing scale</span><span class="hint">Done</span></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+ </html>

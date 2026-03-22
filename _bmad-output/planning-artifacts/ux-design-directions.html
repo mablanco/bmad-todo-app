@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bmad-todo-app UX Design Directions</title>
+    <style>
+      :root {
+        --bg: #f4f1ea;
+        --panel: rgba(255, 255, 255, 0.78);
+        --ink: #163042;
+        --muted: #5e6d78;
+        --line: rgba(22, 48, 66, 0.14);
+        --accent: #2c8b7f;
+        --accent-soft: rgba(44, 139, 127, 0.12);
+        --danger: #b44d4d;
+        --shadow: 0 24px 60px rgba(16, 31, 40, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(44, 139, 127, 0.14), transparent 28%),
+          linear-gradient(180deg, #f9f6f0 0%, var(--bg) 100%);
+      }
+
+      .page {
+        width: min(1320px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 40px 0 72px;
+      }
+
+      .hero {
+        margin-bottom: 28px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 16px 0 10px;
+        font-size: clamp(32px, 5vw, 56px);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+      }
+
+      .hero p {
+        max-width: 760px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1.6;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 22px;
+      }
+
+      .card {
+        background: var(--panel);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .meta {
+        padding: 18px 22px 0;
+      }
+
+      .meta h2 {
+        margin: 10px 0 6px;
+        font-size: 24px;
+        line-height: 1.05;
+      }
+
+      .meta p {
+        margin: 0 0 18px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .mockup {
+        margin: 18px;
+        border-radius: 22px;
+        overflow: hidden;
+        min-height: 340px;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+      }
+
+      .direction-1 .mockup {
+        background: linear-gradient(180deg, #fbfaf7 0%, #f1eee7 100%);
+        padding: 22px;
+      }
+
+      .direction-1 .shell,
+      .direction-2 .shell,
+      .direction-3 .shell,
+      .direction-4 .shell,
+      .direction-5 .shell,
+      .direction-6 .shell {
+        height: 100%;
+      }
+
+      .topline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+        font-weight: 700;
+      }
+
+      .pill {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .input {
+        display: flex;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(22, 48, 66, 0.08);
+        border-radius: 18px;
+        padding: 10px;
+        margin-bottom: 14px;
+      }
+
+      .input span {
+        flex: 1;
+        color: #93a0a8;
+      }
+
+      .btn {
+        background: var(--accent);
+        color: white;
+        border-radius: 14px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .todo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid rgba(22, 48, 66, 0.07);
+      }
+
+      .todo .dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        border: 2px solid var(--accent);
+      }
+
+      .todo.done .dot {
+        background: var(--accent);
+      }
+
+      .todo.done .text {
+        color: #84939c;
+        text-decoration: line-through;
+      }
+
+      .todo .text {
+        flex: 1;
+        font-weight: 600;
+      }
+
+      .todo .stamp {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .direction-2 .mockup {
+        background: #13242f;
+        color: #eaf2f5;
+        padding: 20px;
+      }
+
+      .direction-2 .input,
+      .direction-2 .todo {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .direction-2 .pill,
+      .direction-2 .stamp,
+      .direction-2 .meta p {
+        color: #aac0ca;
+      }
+
+      .direction-3 .mockup {
+        background: linear-gradient(135deg, #f6f8fb 0%, #eff7f5 100%);
+        padding: 24px;
+      }
+
+      .direction-3 .todo {
+        border-radius: 14px;
+        box-shadow: 0 8px 24px rgba(18, 46, 58, 0.06);
+      }
+
+      .direction-3 .input {
+        border-radius: 14px;
+      }
+
+      .direction-4 .mockup {
+        background: #fcfbf8;
+        padding: 0;
+      }
+
+      .direction-4 .split {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        height: 100%;
+      }
+
+      .direction-4 .rail {
+        background: #1b3140;
+        color: white;
+        padding: 18px 14px;
+        display: grid;
+        gap: 10px;
+        align-content: start;
+      }
+
+      .direction-4 .content {
+        padding: 22px;
+      }
+
+      .rail .navitem {
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 12px;
+      }
+
+      .direction-5 .mockup {
+        background: linear-gradient(180deg, #fffefb 0%, #f7f2ea 100%);
+        padding: 22px;
+      }
+
+      .direction-5 .hero-band {
+        border-radius: 22px;
+        background: linear-gradient(135deg, #194059 0%, #2c8b7f 100%);
+        color: white;
+        padding: 22px;
+        margin-bottom: 14px;
+      }
+
+      .direction-6 .mockup {
+        background: #f7f8f8;
+        padding: 22px;
+      }
+
+      .direction-6 .todo,
+      .direction-6 .input {
+        border-radius: 10px;
+      }
+
+      .notes {
+        padding: 0 22px 22px;
+      }
+
+      .notes strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .notes p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      @media (max-width: 700px) {
+        .page {
+          width: min(100vw - 24px, 1320px);
+          padding-top: 24px;
+        }
+
+        .direction-4 .split {
+          grid-template-columns: 1fr;
+        }
+
+        .direction-4 .rail {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <section class="hero">
+        <span class="eyebrow">UX Design Directions</span>
+        <h1>bmad-todo-app</h1>
+        <p>
+          Six visual directions exploring different balances of calm confidence,
+          immediacy, readability, and task-state trust for the MVP todo
+          experience.
+        </p>
+      </section>
+
+      <section class="grid">
+        <article class="card direction-1">
+          <div class="meta">
+            <div class="tags"><span class="tag">Warm Minimal</span><span class="tag">Calm</span><span class="tag">Focused</span></div>
+            <h2>Direction 01: Soft Calm</h2>
+            <p>Warm neutrals, soft cards, and restrained accent use. Best fit if the product should feel thoughtful and reassuring.</p>
+          </div>
+          <div class="mockup">
+            <div class="shell">
+              <div class="topline"><span>Today</span><span class="pill">3 open tasks</span></div>
+              <div class="input"><span>Add a task you want off your mind</span><div class="btn">Add task</div></div>
+              <div class="list">
+                <div class="todo"><div class="dot"></div><div class="text">Prepare API schemas</div><div class="stamp">9:12</div></div>
+                <div class="todo"><div class="dot"></div><div class="text">Review empty state copy</div><div class="stamp">10:40</div></div>
+                <div class="todo done"><div class="dot"></div><div class="text">Define success states</div><div class="stamp">Done</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="notes"><strong>Use if:</strong><p>You want the product to feel gentle, trustworthy, and intentionally simple.</p></div>
+        </article>
+
+        <article class="card direction-2">
+          <div class="meta">
+            <div class="tags"><span class="tag">Dark</span><span class="tag">High Focus</span><span class="tag">Utility</span></div>
+            <h2>Direction 02: Quiet Night</h2>
+            <p>A darker, high-focus utility aesthetic. Strong contrast and reduced visual chatter make state changes pop.</p>
+          </div>
+          <div class="mockup">
+            <div class="shell">
+              <div class="topline"><span>Inbox</span><span class="pill">Fast capture mode</span></div>
+              <div class="input"><span>Write a task and hit enter</span><div class="btn">Add</div></div>
+              <div class="list">
+                <div class="todo"><div class="dot"></div><div class="text">Run migration locally</div><div class="stamp">Open</div></div>
+                <div class="todo done"><div class="dot"></div><div class="text">Confirm error envelope</div><div class="stamp">Done</div></div>
+                <div class="todo"><div class="dot"></div><div class="text">Check mobile spacing</div><div class="stamp">Open</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="notes"><strong>Use if:</strong><p>You want more intensity and contrast while keeping the experience direct and serious.</p></div>
+        </article>
+
+        <article class="card direction-3">
+          <div class="meta">
+            <div class="tags"><span class="tag">Airy</span><span class="tag">Modern</span><span class="tag">Lightweight</span></div>
+            <h2>Direction 03: Clean Float</h2>
+            <p>More whitespace, lighter surfaces, and slightly sharper shapes. This feels fast, polished, and modern.</p>
+          </div>
+          <div class="mockup">
+            <div class="shell">
+              <div class="topline"><span>Focus list</span><span class="pill">Today only</span></div>
+              <div class="input"><span>What needs attention?</span><div class="btn">Create</div></div>
+              <div class="list">
+                <div class="todo"><div class="dot"></div><div class="text">Refine list item states</div><div class="stamp">11:00</div></div>
+                <div class="todo"><div class="dot"></div><div class="text">Write onboarding README</div><div class="stamp">12:10</div></div>
+                <div class="todo done"><div class="dot"></div><div class="text">Document env setup</div><div class="stamp">Done</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="notes"><strong>Use if:</strong><p>You want a more editorial, breathable look without losing efficiency.</p></div>
+        </article>
+
+        <article class="card direction-4">
+          <div class="meta">
+            <div class="tags"><span class="tag">Structured</span><span class="tag">Productive</span><span class="tag">Stable</span></div>
+            <h2>Direction 04: Workbench</h2>
+            <p>A more structured layout with a slim navigation rail. Feels like a dependable everyday tool.</p>
+          </div>
+          <div class="mockup">
+            <div class="split">
+              <div class="rail">
+                <div class="navitem">Today</div>
+                <div class="navitem">Open</div>
+                <div class="navitem">Done</div>
+              </div>
+              <div class="content">
+                <div class="topline"><span>Today</span><span class="pill">1 completed</span></div>
+                <div class="input"><span>Add a task</span><div class="btn">Add</div></div>
+                <div class="list">
+                  <div class="todo"><div class="dot"></div><div class="text">Review focus states</div><div class="stamp">Open</div></div>
+                  <div class="todo"><div class="dot"></div><div class="text">Polish mobile input</div><div class="stamp">Open</div></div>
+                  <div class="todo done"><div class="dot"></div><div class="text">Define spacing scale</div><div class="stamp">Done</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="notes"><strong>Use if:</strong><p>You want a bit more structure and future growth room while staying simple in v1.</p></div>
+        </article>
+
+        <article class="card direction-5">
+          <div class="meta">
+            <div class="tags"><span class="tag">Warm Accent</span><span class="tag">Encouraging</span><span class="tag">Human</span></div>
+            <h2>Direction 05: Gentle Momentum</h2>
+            <p>A warmer hero treatment and softer emphasis on progress. More emotional lift without becoming playful noise.</p>
+          </div>
+          <div class="mockup">
+            <div class="shell">
+              <div class="hero-band">
+                <strong>Keep today light.</strong>
+                <div style="margin-top:8px; opacity:0.88;">Capture the next thing and move on.</div>
+              </div>
+              <div class="input"><span>Add one more thing</span><div class="btn">Add task</div></div>
+              <div class="list">
+                <div class="todo"><div class="dot"></div><div class="text">Draft empty state message</div><div class="stamp">Open</div></div>
+                <div class="todo done"><div class="dot"></div><div class="text">Choose visual system</div><div class="stamp">Done</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="notes"><strong>Use if:</strong><p>You want the app to feel supportive and human, with slightly more personality.</p></div>
+        </article>
+
+        <article class="card direction-6">
+          <div class="meta">
+            <div class="tags"><span class="tag">Crisp</span><span class="tag">Practical</span><span class="tag">Fast</span></div>
+            <h2>Direction 06: Crisp Utility</h2>
+            <p>Tighter spacing, sharper edges, and near-zero ornament. This is the most pragmatic and implementation-efficient direction.</p>
+          </div>
+          <div class="mockup">
+            <div class="shell">
+              <div class="topline"><span>Tasks</span><span class="pill">No friction</span></div>
+              <div class="input"><span>Enter task</span><div class="btn">+</div></div>
+              <div class="list">
+                <div class="todo"><div class="dot"></div><div class="text">Implement PATCH route</div><div class="stamp">12:00</div></div>
+                <div class="todo"><div class="dot"></div><div class="text">Test empty list state</div><div class="stamp">12:15</div></div>
+                <div class="todo done"><div class="dot"></div><div class="text">Choose API envelope</div><div class="stamp">Done</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="notes"><strong>Use if:</strong><p>You want maximum clarity and efficiency with the least visual ceremony.</p></div>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>
