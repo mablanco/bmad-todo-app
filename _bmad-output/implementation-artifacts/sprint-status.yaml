@@ -42,6 +42,13 @@ tracking_system: file-system
 story_location: /home/mablanco/Repos/github/bmad-todo/_bmad-output/implementation-artifacts
 
 development_status:
+  epic-0: in-progress
+  0-1-bootstrap-the-fastapi-project-and-define-the-api-contract: review
+  0-2-implement-the-todo-data-model-and-persistence-layer: review
+  0-3-implement-todo-crud-endpoints-with-service-and-repository-layers: review
+  0-4-harden-the-backend-foundation: backlog
+  epic-0-retrospective: optional
+
   epic-1: in-progress
   1-1-replace-starter-ui-with-the-task-capture-shell: review
   1-2-connect-the-web-app-to-the-todo-list-api: review

@@ -95,11 +95,15 @@ FR-004: Epic 2 - users can see created timestamps
 FR-005: Epic 2 - users can toggle completion
 FR-006: Epic 2 - users can delete tasks
 FR-007: Epic 1 and Epic 3 - users get empty/loading/error states, then those states are refined for consistency, accessibility, and responsiveness
-FR-008: Epic 1 and Epic 4 - persistence is core to capture, then hardened in delivery readiness
-FR-009: Epic 4 - API contract and maintainable delivery/test path
-FR-010: Epic 1, Epic 2, and Epic 4 - visible failure handling across CRUD flows, then hardened in quality and testing
+FR-008: Epic 0, Epic 1, and Epic 4 - backend persistence is built first, then wired to the frontend in capture, then hardened in delivery readiness
+FR-009: Epic 0 and Epic 4 - CRUD API contract is established in the backend foundation, then verified and hardened in delivery readiness
+FR-010: Epic 0, Epic 1, Epic 2, and Epic 4 - error contract established at the API layer, then surfaced in frontend capture and state-management flows, then hardened in quality and testing
 
 ## Epic List
+
+### Epic 0: Backend API Foundation
+The backend API is established with a working data model, full CRUD endpoints, consistent error handling, and a hardened foundation ready for frontend integration.
+**FRs covered:** FR-008, FR-009, FR-010
 
 ### Epic 1: Trustworthy Task Capture
 Users can open the app, understand it immediately, add a task, and trust that it has been captured correctly.
@@ -116,6 +120,146 @@ Users can manage tasks across mobile and desktop with clear states, accessible i
 ### Epic 4: Developer Readiness and Product Hardening
 The team can run, test, and extend the product reliably, with onboarding, environment setup, and maintainable implementation paths in place.
 **FRs covered:** Supports FR-008, FR-009, FR-010 through delivery quality and maintainability rather than new end-user capability
+
+## Epic 0: Backend API Foundation
+
+The backend API is established with a working data model, full CRUD endpoints, consistent error handling, and a hardened foundation ready for frontend integration.
+
+### Story 0.1: Bootstrap the FastAPI Project and Define the API Contract
+
+As a developer building the frontend,
+I want a running FastAPI service with a versioned API router and a health endpoint,
+So that I have a stable, observable integration surface to build against.
+
+**Requirements:** FR-009; Supports FR-008, FR-010
+
+**Acceptance Criteria:**
+
+**Given** the backend is started
+**When** I send `GET /api/v1/health`
+**Then** the service responds with HTTP 200 and a body indicating healthy status
+
+**Given** a request produces a validation error
+**When** the API responds
+**Then** the response uses the standard error envelope: `{"error": {"code": "...", "message": "...", "details": {}}}`
+**And** no raw exception details or stack traces are exposed
+
+**Given** the API is running
+**When** I navigate to the OpenAPI docs URL
+**Then** the auto-generated schema reflects all registered routes and their response shapes
+
+**Given** the project is freshly cloned
+**When** I inspect `api/pyproject.toml`
+**Then** all required runtime and test dependencies are declared
+**And** the project installs cleanly in a virtual environment
+
+### Story 0.2: Implement the Todo Data Model and Persistence Layer
+
+As a developer,
+I want a defined SQLAlchemy Todo model with a session factory and dependency injection wiring,
+So that routes can read and write todos through a clean, testable persistence boundary.
+
+**Requirements:** FR-008, FR-009; Supports NFR-006
+
+**Acceptance Criteria:**
+
+**Given** the application starts
+**When** the database layer initialises
+**Then** a `todos` table exists with columns: `id` (UUID string), `description` (max 500 chars), `completed` (boolean, default false), `created_at` (UTC timestamp), `updated_at` (UTC timestamp)
+**And** a nullable `user_id` column is reserved for future per-user scoping
+
+**Given** a FastAPI route handler requests a DB session via `Depends(get_db)`
+**When** the dependency resolves
+**Then** a valid SQLAlchemy session is injected
+**And** the session is closed cleanly after the request completes
+
+**Given** the database URL needs to differ between environments
+**When** the `DATABASE_URL` environment variable is set
+**Then** the application uses that value instead of the default SQLite path
+**And** `api/.env.example` documents the available environment variables
+
+**Given** the schema changes in the future
+**When** a migration is run via Alembic
+**Then** the change is tracked in a versioned migration file under `api/migrations/versions/`
+**And** an initial migration capturing the v1 `todos` table already exists
+
+### Story 0.3: Implement Todo CRUD Endpoints with Service and Repository Layers
+
+As a frontend developer,
+I want working endpoints to list, create, update, and delete todos,
+So that the frontend can persist and manage todo state through the API.
+
+**Requirements:** FR-008, FR-009, FR-010
+
+**Acceptance Criteria:**
+
+**Given** todos exist in the database
+**When** I send `GET /api/v1/todos`
+**Then** the response is `{"data": [...]}` with todos ordered newest-first
+**And** each todo includes `id`, `description`, `completed`, `created_at`, and `updated_at`
+
+**Given** a valid payload `{"description": "Buy milk"}`
+**When** I send `POST /api/v1/todos`
+**Then** the response is HTTP 201 with `{"data": {...}}` containing the created todo
+
+**Given** an empty or whitespace-only description is submitted
+**When** the API validates the payload
+**Then** the response is HTTP 422 with a `VALIDATION_ERROR` error envelope
+**And** no todo is persisted
+
+**Given** a todo exists with a known `todoId`
+**When** I send `PATCH /api/v1/todos/{todoId}` with `{"completed": true}`
+**Then** the response is HTTP 200 with the updated todo in a `{"data": {...}}` envelope
+**And** the change is persisted
+
+**Given** a `todoId` that does not exist
+**When** I send `PATCH` or `DELETE` for that id
+**Then** the response is HTTP 404 with a `TODO_NOT_FOUND` error envelope
+
+**Given** a todo exists
+**When** I send `DELETE /api/v1/todos/{todoId}`
+**Then** the response is HTTP 204 with no body
+**And** the todo is removed from subsequent list responses
+
+**Given** the backend integration test suite runs
+**When** all tests execute against an isolated in-memory database
+**Then** all tests pass
+**And** each CRUD operation and its primary error path is covered
+
+### Story 0.4: Harden the Backend Foundation
+
+As a developer maintaining or extending the API,
+I want Alembic migration infrastructure, structured logging, unit tests, and documented environment setup,
+So that the backend is observable, evolvable, and onboardable without friction.
+
+**Requirements:** Supports FR-008, FR-009, FR-010; NFR-003, NFR-006
+
+**Acceptance Criteria:**
+
+**Given** the backend project is freshly cloned
+**When** I read `api/.env.example`
+**Then** I find every environment variable the app reads, with descriptions and default values documented
+
+**Given** the app receives an HTTP request
+**When** the request completes or raises an exception
+**Then** a structured log line is emitted at the appropriate level
+**And** no raw internal details are included in user-facing error responses
+
+**Given** I run the unit test suite for the service and repository layers
+**When** tests execute
+**Then** `TodoService` business rules (not-found, partial update, delegation) are covered in isolation without a running database
+**And** `TodoRepository` query logic is covered against an in-memory session
+
+**Given** Alembic is configured
+**When** I run `alembic upgrade head` against a fresh database
+**Then** the `todos` table is created with all required columns including the reserved `user_id` column
+**And** running `alembic upgrade head` a second time is a no-op
+
+**Given** a future schema change is needed
+**When** I generate a new migration with `alembic revision --autogenerate`
+**Then** Alembic detects the delta from the current model and produces a migration file
+
+---
 
 ## Epic 1: Trustworthy Task Capture
 
