@@ -161,9 +161,16 @@ input:focus-visible {
 
 .todo-composer__feedback {
   margin: 0;
-  color: var(--color-danger-600);
   font-size: 0.92rem;
   font-weight: 600;
+}
+
+.todo-composer__feedback--alert {
+  color: var(--color-danger-600);
+}
+
+.todo-composer__feedback--status {
+  color: var(--color-accent-600);
 }
 
 .todo-composer__hint {
@@ -309,6 +316,13 @@ input:focus-visible {
   border-radius: calc(var(--radius-field) - 4px);
   background: var(--color-surface-strong);
   border: 1px solid rgba(81, 98, 112, 0.12);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.todo-card--fresh {
+  border-color: rgba(58, 147, 140, 0.4);
+  box-shadow: 0 12px 28px rgba(44, 122, 116, 0.12);
+  transform: translateY(-1px);
 }
 
 .todo-card__status {

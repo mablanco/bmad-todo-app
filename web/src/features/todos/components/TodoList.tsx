@@ -1,6 +1,7 @@
 import type { Todo } from '../types/todo'
 
 type TodoListProps = {
+  highlightedTodoId?: string | null
   todos: Todo[]
 }
 
@@ -11,7 +12,7 @@ function formatCreatedAt(value: string) {
   }).format(new Date(value))
 }
 
-export function TodoList({ todos }: TodoListProps) {
+export function TodoList({ highlightedTodoId = null, todos }: TodoListProps) {
   return (
     <section aria-labelledby="todo-list-title" className="todo-list">
       <div className="todo-list__header">
@@ -24,7 +25,9 @@ export function TodoList({ todos }: TodoListProps) {
       <ol className="todo-list__items">
         {todos.map((todo) => (
           <li className="todo-list__item" key={todo.id}>
-            <article className="todo-card">
+            <article
+              className={`todo-card${todo.id === highlightedTodoId ? ' todo-card--fresh' : ''}`}
+            >
               <div className="todo-card__status" aria-hidden="true">
                 {todo.completed ? 'Completed' : 'Active'}
               </div>

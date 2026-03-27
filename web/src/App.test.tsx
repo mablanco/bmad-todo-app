@@ -239,6 +239,7 @@ describe('App', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(input).toHaveValue('')
     expect(document.activeElement).toBe(input)
+    expect(await screen.findByRole('status')).toHaveTextContent('Added: Write Story 1.3 tests')
     expect(screen.getByRole('heading', { name: 'Your tasks' })).toBeVisible()
   })
 
@@ -338,7 +339,7 @@ describe('App', () => {
         )
       }
 
-      listSignal = init?.signal
+      listSignal = init?.signal ?? undefined
 
       return await new Promise<Response>((resolve, reject) => {
         resolveListRequest = resolve
@@ -363,7 +364,8 @@ describe('App', () => {
       expect(listSignal?.aborted).toBe(true)
     })
 
-    resolveListRequest?.(
+    expect(resolveListRequest).not.toBeNull()
+    resolveListRequest!(
       new Response(JSON.stringify({ data: [] }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -375,4 +377,169 @@ describe('App', () => {
     })
     expect(screen.getByRole('heading', { name: 'Your tasks' })).toBeVisible()
   })
+
+  it('shows localized pending feedback while a task is being created without collapsing the rest of the shell', async () => {
+    let resolveCreateRequest: ((response: Response) => void) | null = null
+
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'POST') {
+        return await new Promise<Response>((resolve) => {
+          resolveCreateRequest = resolve
+        })
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'existing-task',
+              description: 'Already here',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    expect(await screen.findByText('Already here')).toBeVisible()
+
+    const form = screen.getByRole('form', { name: 'Create a task' })
+    const input = screen.getByLabelText('Task description')
+    const button = screen.getByRole('button', { name: 'Add task' })
+
+    fireEvent.change(input, { target: { value: 'Wait for it' } })
+    fireEvent.submit(form)
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Saving to your list...')
+    expect(button).toBeDisabled()
+    expect(screen.getByText('Already here')).toBeVisible()
+    expect(screen.queryByRole('heading', { name: 'No tasks yet' })).toBeNull()
+
+    expect(resolveCreateRequest).not.toBeNull()
+    resolveCreateRequest!(
+      new Response(
+        JSON.stringify({
+          data: {
+            id: 'pending-task',
+            description: 'Wait for it',
+            completed: false,
+            created_at: '2026-03-27T14:30:00Z',
+            updated_at: '2026-03-27T14:30:00Z',
+          },
+        }),
+        {
+          status: 201,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      ),
+    )
+
+    expect(await screen.findByText('Wait for it')).toBeVisible()
+  })
+
+  it('marks the newly created task as a believable fresh update instead of relying on noisy confirmation UI', async () => {
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'POST') {
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'fresh-task',
+              description: 'Highlight the latest task',
+              completed: false,
+              created_at: '2026-03-27T15:00:00Z',
+              updated_at: '2026-03-27T15:00:00Z',
+            },
+          }),
+          {
+            status: 201,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+      }
+
+      return new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const form = await screen.findByRole('form', { name: 'Create a task' })
+    const input = screen.getByLabelText('Task description')
+
+    fireEvent.change(input, { target: { value: 'Highlight the latest task' } })
+    fireEvent.submit(form)
+
+    const newTask = await screen.findByText('Highlight the latest task')
+    const article = newTask.closest('.todo-card')
+
+    expect(article).toHaveClass('todo-card--fresh')
+    expect(screen.queryByRole('alertdialog')).toBeNull()
+    expect(screen.queryByText(/saved successfully/i)).toBeNull()
+  })
+
+  it('clears the fresh-task highlight after a short trust window', async () => {
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'POST') {
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'temporary-highlight',
+              description: 'This should settle back down',
+              completed: false,
+              created_at: '2026-03-27T15:30:00Z',
+              updated_at: '2026-03-27T15:30:00Z',
+            },
+          }),
+          {
+            status: 201,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+      }
+
+      return new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const form = await screen.findByRole('form', { name: 'Create a task' })
+    const input = screen.getByLabelText('Task description')
+
+    fireEvent.change(input, { target: { value: 'This should settle back down' } })
+    fireEvent.submit(form)
+
+    const newTask = await screen.findByText('This should settle back down')
+    const article = newTask.closest('.todo-card')
+
+    expect(article).toHaveClass('todo-card--fresh')
+
+    await waitFor(
+      () => {
+        expect(article).not.toHaveClass('todo-card--fresh')
+      },
+      { timeout: 4000 },
+    )
+  }, 5000)
 });

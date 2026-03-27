@@ -21,12 +21,17 @@ function validateDescription(description: string) {
   return null
 }
 
-export function TodoComposer() {
+type TodoComposerProps = {
+  onCreated?: (todoId: string) => void
+}
+
+export function TodoComposer({ onCreated }: TodoComposerProps) {
   const [description, setDescription] = useState('')
   const [validationMessage, setValidationMessage] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const feedbackId = useId()
   const {
+    data,
     error,
     isPending,
     isSuccess,
@@ -34,7 +39,24 @@ export function TodoComposer() {
     reset,
   } = useCreateTodo()
 
-  const feedbackMessage = validationMessage ?? error?.message ?? null
+  const isFieldInvalid = Boolean(validationMessage ?? error?.message)
+
+  let feedbackMessage: string | null = null
+  let feedbackRole: 'alert' | 'status' | undefined
+
+  if (validationMessage) {
+    feedbackMessage = validationMessage
+    feedbackRole = 'alert'
+  } else if (error) {
+    feedbackMessage = error.message
+    feedbackRole = 'alert'
+  } else if (isPending) {
+    feedbackMessage = 'Saving to your list...'
+    feedbackRole = 'status'
+  } else if (isSuccess && data) {
+    feedbackMessage = `Added: ${data.description}`
+    feedbackRole = 'status'
+  }
 
   useEffect(() => {
     if (isSuccess) {
@@ -49,7 +71,7 @@ export function TodoComposer() {
       setValidationMessage(null)
     }
 
-    if (error) {
+    if (error || isSuccess) {
       reset()
     }
   }
@@ -57,7 +79,7 @@ export function TodoComposer() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
-    if (error) {
+    if (error || isSuccess) {
       reset()
     }
 
@@ -71,8 +93,9 @@ export function TodoComposer() {
     setValidationMessage(null)
 
     try {
-      await mutateAsync({ description: description.trim() })
+      const createdTodo = await mutateAsync({ description: description.trim() })
       setDescription('')
+      onCreated?.(createdTodo.id)
     } catch {
       // Mutation state exposes the product-safe error message inline.
     }
@@ -80,6 +103,7 @@ export function TodoComposer() {
 
   return (
     <form
+      aria-busy={isPending}
       className="todo-composer"
       aria-label="Create a task"
       onSubmit={handleSubmit}
@@ -92,7 +116,7 @@ export function TodoComposer() {
         <input
           className="todo-composer__input"
           aria-describedby={feedbackMessage ? feedbackId : undefined}
-          aria-invalid={feedbackMessage ? 'true' : 'false'}
+          aria-invalid={isFieldInvalid ? 'true' : 'false'}
           autoComplete="off"
           disabled={isPending}
           id="todo-description"
@@ -109,8 +133,13 @@ export function TodoComposer() {
         </button>
       </div>
 
-      {feedbackMessage ? (
-        <p className="todo-composer__feedback" id={feedbackId} role="alert">
+      {feedbackMessage && feedbackRole ? (
+        <p
+          aria-live={feedbackRole === 'status' ? 'polite' : 'assertive'}
+          className={`todo-composer__feedback todo-composer__feedback--${feedbackRole}`}
+          id={feedbackId}
+          role={feedbackRole}
+        >
           {feedbackMessage}
         </p>
       ) : null}

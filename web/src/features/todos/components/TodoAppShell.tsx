@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import { TodoComposer } from './TodoComposer'
 import { TodoEmptyState } from './TodoEmptyState'
 import { TodoErrorState } from './TodoErrorState'
@@ -6,6 +8,7 @@ import { TodoLoadingState } from './TodoLoadingState'
 import { useTodos } from '../hooks/useTodos'
 
 export function TodoAppShell() {
+  const [recentlyCreatedTodoId, setRecentlyCreatedTodoId] = useState<string | null>(null)
   const {
     data: todos,
     error,
@@ -13,6 +16,22 @@ export function TodoAppShell() {
     isFetching,
     refetch,
   } = useTodos()
+
+  useEffect(() => {
+    if (!recentlyCreatedTodoId) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setRecentlyCreatedTodoId((currentId) =>
+        currentId === recentlyCreatedTodoId ? null : currentId,
+      )
+    }, 3000)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [recentlyCreatedTodoId])
 
   let content = <TodoEmptyState />
 
@@ -29,7 +48,7 @@ export function TodoAppShell() {
       />
     )
   } else if (todos && todos.length > 0) {
-    content = <TodoList todos={todos} />
+    content = <TodoList highlightedTodoId={recentlyCreatedTodoId} todos={todos} />
   }
 
   return (
@@ -47,7 +66,7 @@ export function TodoAppShell() {
         </header>
 
         <div className="todo-shell__body">
-          <TodoComposer />
+          <TodoComposer onCreated={setRecentlyCreatedTodoId} />
           {content}
         </div>
       </section>
