@@ -1,0 +1,217 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+body,
+button,
+input {
+  font: inherit;
+}
+
+button,
+input {
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-focus) 72%, white);
+  outline-offset: 2px;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+.todo-shell {
+  min-height: 100svh;
+  padding: var(--space-3);
+  display: grid;
+  place-items: center;
+}
+
+.todo-shell__panel {
+  width: min(100%, 720px);
+  background: var(--color-surface);
+  border: 1px solid rgba(81, 98, 112, 0.12);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft), var(--shadow-line);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.todo-shell__header {
+  padding: var(--space-5) var(--space-4) var(--space-3);
+  border-bottom: 1px solid rgba(81, 98, 112, 0.1);
+}
+
+.todo-shell__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 var(--space-2);
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-100);
+  color: var(--color-accent-600);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.todo-shell__eyebrow::before {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.todo-shell__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(2.45rem, 6vw, 4.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  color: var(--color-ink-950);
+}
+
+.todo-shell__subtitle {
+  max-width: 32rem;
+  margin: var(--space-2) 0 0;
+  color: var(--color-ink-600);
+  font-size: 1rem;
+}
+
+.todo-shell__body {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.todo-composer {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.todo-composer__label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-ink-950);
+}
+
+.todo-composer__controls {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.todo-composer__input {
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0.95rem 1.1rem;
+  border: 1px solid rgba(81, 98, 112, 0.2);
+  border-radius: var(--radius-field);
+  background: var(--color-surface-strong);
+  color: var(--color-ink-950);
+}
+
+.todo-composer__input::placeholder {
+  color: var(--color-ink-400);
+}
+
+.todo-composer__button {
+  min-height: 3.5rem;
+  padding: 0.95rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-field);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-600),
+    var(--color-accent-500)
+  );
+  color: #f7fbfa;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(44, 122, 116, 0.2);
+}
+
+.todo-composer__hint {
+  margin: 0;
+  color: var(--color-ink-600);
+  font-size: 0.92rem;
+}
+
+.todo-empty-state {
+  padding: var(--space-3);
+  border: 1px dashed rgba(81, 98, 112, 0.2);
+  border-radius: calc(var(--radius-card) - 8px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.82));
+}
+
+.todo-empty-state__title {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-heading);
+  font-size: 1.6rem;
+  letter-spacing: -0.03em;
+  color: var(--color-ink-950);
+}
+
+.todo-empty-state__body {
+  margin: 0 0 var(--space-2);
+  color: var(--color-ink-600);
+}
+
+.todo-empty-state__note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-pill);
+  background: rgba(227, 215, 200, 0.45);
+  color: var(--color-ink-800);
+  font-size: 0.92rem;
+}
+
+.todo-empty-state__note::before {
+  content: '↳';
+  font-weight: 700;
+  color: var(--color-accent-600);
+}
+
+@media (min-width: 640px) {
+  .todo-composer__controls {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .todo-composer__button {
+    min-width: 10rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .todo-shell {
+    padding: var(--space-2);
+  }
+
+  .todo-shell__header {
+    padding: var(--space-4) var(--space-3) var(--space-3);
+  }
+
+  .todo-shell__body {
+    padding: 0 var(--space-3) var(--space-3);
+  }
+}

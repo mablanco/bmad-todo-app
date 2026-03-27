@@ -1,0 +1,46 @@
+:root {
+  --color-ink-950: #1d2730;
+  --color-ink-800: #31414d;
+  --color-ink-600: #516270;
+  --color-ink-400: #80909d;
+  --color-mist-50: #f7f4ef;
+  --color-mist-100: #efe7dc;
+  --color-mist-200: #e3d7c8;
+  --color-surface: rgba(255, 252, 247, 0.88);
+  --color-surface-strong: #fffdf9;
+  --color-accent-600: #2c7a74;
+  --color-accent-500: #3a938c;
+  --color-accent-100: rgba(58, 147, 140, 0.14);
+  --color-danger-600: #b9574f;
+  --color-focus: #1a6f89;
+
+  --shadow-soft: 0 18px 40px rgba(43, 55, 66, 0.12);
+  --shadow-line: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+
+  --radius-card: 28px;
+  --radius-field: 18px;
+  --radius-pill: 999px;
+
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 3rem;
+  --space-6: 4rem;
+
+  --font-body: 'Avenir Next', 'Segoe UI', 'Trebuchet MS', sans-serif;
+  --font-heading: 'Avenir Next Condensed', 'Franklin Gothic Medium',
+    'Arial Narrow', sans-serif;
+  --font-mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+
+  color: var(--color-ink-800);
+  background:
+    radial-gradient(circle at top left, rgba(58, 147, 140, 0.12), transparent 32%),
+    radial-gradient(circle at top right, rgba(227, 215, 200, 0.7), transparent 38%),
+    linear-gradient(180deg, #fcfaf6 0%, #f4efe7 100%);
+  font: 400 16px/1.5 var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
