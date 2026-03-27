@@ -5,6 +5,6 @@ import { fetchTodos } from '../api/todos'
 export function useTodos() {
   return useQuery({
     queryKey: ['todos'],
-    queryFn: fetchTodos,
+    queryFn: ({ signal }) => fetchTodos(signal),
   })
 }

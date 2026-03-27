@@ -9,3 +9,11 @@ export type Todo = {
 export type TodoListResponse = {
   data: Todo[]
 }
+
+export type TodoResponse = {
+  data: Todo
+}
+
+export type CreateTodoInput = {
+  description: string
+}

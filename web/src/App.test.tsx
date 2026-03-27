@@ -197,4 +197,182 @@ describe('App', () => {
 
     await expect(apiRequest<void>('/api/v1/todos/test-id', { method: 'DELETE' })).resolves.toBeUndefined()
   })
+
+  it('creates a new todo from the main composer and resets focus for continued capture', async () => {
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'POST') {
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'new-task',
+              description: 'Write Story 1.3 tests',
+              completed: false,
+              created_at: '2026-03-27T12:30:00Z',
+              updated_at: '2026-03-27T12:30:00Z',
+            },
+          }),
+          {
+            status: 201,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+      }
+
+      return new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const form = await screen.findByRole('form', { name: 'Create a task' })
+    const input = screen.getByLabelText('Task description')
+
+    fireEvent.change(input, { target: { value: 'Write Story 1.3 tests' } })
+    fireEvent.submit(form)
+
+    expect(await screen.findByText('Write Story 1.3 tests')).toBeVisible()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(input).toHaveValue('')
+    expect(document.activeElement).toBe(input)
+    expect(screen.getByRole('heading', { name: 'Your tasks' })).toBeVisible()
+  })
+
+  it('shows inline validation feedback and blocks blank or oversized submissions', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const form = await screen.findByRole('form', { name: 'Create a task' })
+    const input = screen.getByLabelText('Task description')
+
+    fireEvent.change(input, { target: { value: '   ' } })
+    fireEvent.submit(form)
+
+    expect(
+      await screen.findByText('Description must be between 1 and 500 characters.'),
+    ).toBeVisible()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    fireEvent.change(input, { target: { value: 'a'.repeat(501) } })
+    fireEvent.submit(form)
+
+    expect(
+      screen.getByText('Description must be between 1 and 500 characters.'),
+    ).toBeVisible()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('preserves the typed value and shows calm feedback when create fails', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: [] }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: {
+              code: 'SERVER_ERROR',
+              message: "We couldn't save your task right now. Try again.",
+              details: {},
+            },
+          }),
+          {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        ),
+      )
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const form = await screen.findByRole('form', { name: 'Create a task' })
+    const input = screen.getByLabelText('Task description')
+
+    fireEvent.change(input, { target: { value: 'Keep this draft intact' } })
+    fireEvent.submit(form)
+
+    expect(
+      await screen.findByText("We couldn't save your task right now. Try again."),
+    ).toBeVisible()
+    expect(input).toHaveValue('Keep this draft intact')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it('keeps a newly created todo visible if the initial list request is canceled mid-flight', async () => {
+    let resolveListRequest: ((response: Response) => void) | null = null
+    let listSignal: AbortSignal | undefined
+
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'POST') {
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'racing-task',
+              description: 'Persist through the race',
+              completed: false,
+              created_at: '2026-03-27T13:30:00Z',
+              updated_at: '2026-03-27T13:30:00Z',
+            },
+          }),
+          {
+            status: 201,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+      }
+
+      listSignal = init?.signal
+
+      return await new Promise<Response>((resolve, reject) => {
+        resolveListRequest = resolve
+
+        init?.signal?.addEventListener('abort', () => {
+          reject(new DOMException('Aborted', 'AbortError'))
+        })
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const form = await screen.findByRole('form', { name: 'Create a task' })
+    const input = screen.getByLabelText('Task description')
+
+    fireEvent.change(input, { target: { value: 'Persist through the race' } })
+    fireEvent.submit(form)
+
+    expect(await screen.findByText('Persist through the race')).toBeVisible()
+    await waitFor(() => {
+      expect(listSignal?.aborted).toBe(true)
+    })
+
+    resolveListRequest?.(
+      new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+
+    await waitFor(() => {
+      expect(screen.getByText('Persist through the race')).toBeVisible()
+    })
+    expect(screen.getByRole('heading', { name: 'Your tasks' })).toBeVisible()
+  })
 });
