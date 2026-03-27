@@ -1,0 +1,10 @@
+Metadata-Version: 2.4
+Name: bmad-todo-app-api
+Version: 0.1.0
+Summary: Backend scaffold for bmad-todo-app
+Requires-Python: >=3.11
+Requires-Dist: fastapi<1.0.0,>=0.128.0
+Requires-Dist: sqlalchemy<3.0.0,>=2.0.48
+Provides-Extra: test
+Requires-Dist: httpx<1.0.0,>=0.28.0; extra == "test"
+Requires-Dist: pytest<9.0.0,>=8.4.0; extra == "test"

@@ -23,6 +23,8 @@ npm run bootstrap:frontend
 npm run bootstrap:backend
 ```
 
+The backend bootstrap creates a local `.venv/` and installs the Python API dependencies there.
+
 ## Local Development
 
 Run frontend and backend together:

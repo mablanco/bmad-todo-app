@@ -18,7 +18,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 printf '%s\n' 'Starting backend on http://127.0.0.1:8000'
-python3 -m fastapi dev api/app/main.py --host 127.0.0.1 --port 8000 &
+./.venv/bin/python -m fastapi dev api/app/main.py --host 127.0.0.1 --port 8000 &
 backend_pid=$!
 
 printf '%s\n' 'Starting frontend on http://127.0.0.1:5173'

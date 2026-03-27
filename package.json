@@ -4,13 +4,13 @@
   "scripts": {
     "bootstrap": "npm run bootstrap:frontend && npm run bootstrap:backend",
     "bootstrap:frontend": "npm --prefix web install",
-    "bootstrap:backend": "python3 -m pip install -e \"./api[test]\"",
+    "bootstrap:backend": "python3 -m venv .venv && ./.venv/bin/python -m pip install --upgrade pip && ./.venv/bin/python -m pip install -e \"./api[test]\"",
     "dev": "./scripts/dev.sh",
-    "dev:backend": "python3 -m fastapi dev api/app/main.py --host 127.0.0.1 --port 8000",
+    "dev:backend": "./.venv/bin/python -m fastapi dev api/app/main.py --host 127.0.0.1 --port 8000",
     "dev:frontend": "npm --prefix web run dev",
     "build:frontend": "npm --prefix web run build",
     "test:frontend": "npm --prefix web run test -- --run",
-    "test:backend": "python3 -m pytest api/tests",
+    "test:backend": "./.venv/bin/python -m pytest api/tests",
     "test:e2e": "npm --prefix web exec playwright test --config ../playwright.config.ts",
     "test": "npm run test:frontend && npm run test:backend",
     "test:all": "npm run test && npm run test:e2e"

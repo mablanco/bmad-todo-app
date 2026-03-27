@@ -5,6 +5,7 @@ _bmad/
 node_modules/
 playwright-report/
 test-results/
+.venv/
 .pytest_cache/
 __pycache__/
 *.pyc
