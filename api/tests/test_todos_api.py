@@ -1,6 +1,19 @@
 from fastapi.testclient import TestClient
 
 
+def test_list_todos_returns_newest_first(client: TestClient) -> None:
+    first = client.post("/api/v1/todos", json={"description": "First task"}).json()["data"]
+    second = client.post("/api/v1/todos", json={"description": "Second task"}).json()["data"]
+
+    response = client.get("/api/v1/todos")
+
+    assert response.status_code == 200
+    items = response.json()["data"]
+    assert len(items) == 2
+    assert items[0]["id"] == second["id"]
+    assert items[1]["id"] == first["id"]
+
+
 def test_list_todos_returns_empty_collection(client: TestClient) -> None:
     response = client.get("/api/v1/todos")
 

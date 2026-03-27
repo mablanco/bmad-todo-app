@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Path, Response, status
 from sqlalchemy.orm import Session
 
 from app.dependencies.db import get_db
@@ -12,6 +12,7 @@ from app.services.todo_service import TodoService
 router = APIRouter(prefix="/todos", tags=["todos"])
 
 DBSession = Annotated[Session, Depends(get_db)]
+TodoId = Annotated[str, Path(min_length=1, max_length=36)]
 
 
 def build_service(db: Session) -> TodoService:
@@ -31,12 +32,12 @@ def create_todo(payload: TodoCreate, db: DBSession) -> DataResponse[TodoRead]:
 
 
 @router.patch("/{todoId}", response_model=DataResponse[TodoRead])
-def update_todo(todoId: str, payload: TodoUpdate, db: DBSession) -> DataResponse[TodoRead]:
+def update_todo(todoId: TodoId, payload: TodoUpdate, db: DBSession) -> DataResponse[TodoRead]:
     todo = build_service(db).update_todo(todoId, payload)
     return DataResponse(data=TodoRead.model_validate(todo))
 
 
 @router.delete("/{todoId}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_todo(todoId: str, db: DBSession) -> Response:
+def delete_todo(todoId: TodoId, db: DBSession) -> Response:
     build_service(db).delete_todo(todoId)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -14,19 +14,19 @@ class TodoRead(APIModel):
 
 
 class TodoCreate(APIModel):
-    description: str
+    description: str = Field(max_length=500)
 
     @model_validator(mode="after")
     def validate_trimmed_description(self) -> "TodoCreate":
         description = self.description.strip()
-        if not description or len(description) > 500:
+        if not description:
             raise ValueError("Description must be between 1 and 500 characters.")
         self.description = description
         return self
 
 
 class TodoUpdate(APIModel):
-    description: str | None = None
+    description: str | None = Field(default=None, max_length=500)
     completed: bool | None = None
 
     @model_validator(mode="after")
@@ -35,7 +35,7 @@ class TodoUpdate(APIModel):
             raise ValueError("At least one field must be provided.")
         if self.description is not None:
             description = self.description.strip()
-            if not description or len(description) > 500:
+            if not description:
                 raise ValueError("Description must be between 1 and 500 characters.")
             self.description = description
         return self
