@@ -1,6 +1,6 @@
 # Story 0.4: Harden the Backend Foundation
 
-Status: backlog
+Status: review
 
 ## Story
 
@@ -20,23 +20,23 @@ so that the backend is observable, evolvable, and onboardable without friction.
 
 - [x] Verify and complete `api/.env.example` documentation (AC: 1)
   - [x] `api/.env.example` already exists from Story 0.2 code review patches with `DATABASE_URL` documented.
-  - [ ] Review for completeness: confirm no other env vars are read by the app and that defaults match reality.
-- [ ] Add structured request logging to the API (AC: 2)
-  - [ ] Create `api/app/core/logging.py` with a structured logging setup (JSON or key-value format).
-  - [ ] Add request/response logging middleware or FastAPI event handlers that emit method, path, status, and duration.
-  - [ ] Ensure log level is configurable via environment variable (e.g., `LOG_LEVEL`).
-  - [ ] Confirm no raw exception internals leak into user-facing responses (already enforced by `errors.py` handlers — verify logging does not bypass this).
-- [ ] Add unit tests for the service layer (AC: 3)
-  - [ ] Create `api/tests/unit/test_todo_service.py`.
-  - [ ] Mock `TodoRepository` to test `TodoService` business rules in isolation:
+  - [x] Review for completeness: confirm no other env vars are read by the app and that defaults match reality.
+- [x] Add structured request logging to the API (AC: 2)
+  - [x] Create `api/app/core/logging.py` with a structured logging setup (JSON or key-value format).
+  - [x] Add request/response logging middleware or FastAPI event handlers that emit method, path, status, and duration.
+  - [x] Ensure log level is configurable via environment variable (e.g., `LOG_LEVEL`).
+  - [x] Confirm no raw exception internals leak into user-facing responses (already enforced by `errors.py` handlers — verify logging does not bypass this).
+- [x] Add unit tests for the service layer (AC: 3)
+  - [x] Create `api/tests/unit/test_todo_service.py`.
+  - [x] Mock `TodoRepository` to test `TodoService` business rules in isolation:
     - `list_todos` delegates to repository
     - `create_todo` passes trimmed description
     - `update_todo` raises `AppError(404)` when repository returns `None`
     - `update_todo` passes partial fields correctly
     - `delete_todo` raises `AppError(404)` when repository returns `None`
-- [ ] Add unit tests for the repository layer (AC: 3)
-  - [ ] Create `api/tests/unit/test_todo_repository.py`.
-  - [ ] Use an in-memory SQLAlchemy session to test repository query logic:
+- [x] Add unit tests for the repository layer (AC: 3)
+  - [x] Create `api/tests/unit/test_todo_repository.py`.
+  - [x] Use an in-memory SQLAlchemy session to test repository query logic:
     - `list()` returns todos ordered newest-first
     - `get()` returns `None` for missing ID
     - `create()` persists and returns a todo with all fields set
@@ -44,9 +44,9 @@ so that the backend is observable, evolvable, and onboardable without friction.
     - `delete()` removes the record
 - [x] Verify Alembic migration scaffold works end-to-end (AC: 4, 5)
   - [x] Alembic scaffold created in Story 0.2 code review patches: `alembic.ini`, `migrations/env.py`, `migrations/script.py.mako`, `migrations/versions/0001_create_todos_table.py`.
-  - [ ] Verify `alembic upgrade head` creates the table correctly against a fresh database.
-  - [ ] Verify `alembic upgrade head` is idempotent (second run is a no-op).
-  - [ ] Verify `alembic revision --autogenerate` detects no delta against the current model (model and migration are in sync).
+  - [x] Verify `alembic upgrade head` creates the table correctly against a fresh database.
+  - [x] Verify `alembic upgrade head` is idempotent (second run is a no-op).
+  - [x] Verify `alembic revision --autogenerate` detects no delta against the current model (model and migration are in sync).
 
 ## Dev Notes
 
@@ -92,3 +92,48 @@ so that the backend is observable, evolvable, and onboardable without friction.
 - Architecture patterns: [architecture.md](/home/mablanco/Repos/github/bmad-todo/_bmad-output/planning-artifacts/architecture.md#Implementation-Patterns--Consistency-Rules)
 - Previous stories: [0-2](0-2-implement-the-todo-data-model-and-persistence-layer.md), [0-3](0-3-implement-todo-crud-endpoints-with-service-and-repository-layers.md)
 - Deferred work from code reviews: [deferred-work.md](deferred-work.md)
+
+## Dev Agent Record
+
+### Agent Model Used
+
+Claude Opus 4.6
+
+### Debug Log References
+
+- `.env.example` already contained `DATABASE_URL`; added `LOG_LEVEL` as the only other env var.
+- `alembic upgrade head` verified against fresh DB, idempotent second run confirmed.
+- `alembic revision --autogenerate` initially detected phantom "removed table" because `models/__init__.py` did not re-export `Todo` — fixed.
+- Story 0.4 code review follow-up: fixed exception/error-level request logging and duplicate-handler registration in `api/app/core/logging.py`.
+- Cleaned the tracked `api/bmad_todo.db` diff so the story review scope stays on code and tests only.
+- All 24 tests pass (9 integration + 4 logging unit + 6 service unit + 5 repository unit).
+
+### Completion Notes List
+
+- Added `api/app/core/logging.py` with structured key-value request logging middleware (`method`, `path`, `status`, `duration_ms`).
+- `LOG_LEVEL` env var support added; documented in `.env.example`.
+- Logging wired into `main.py` via `register_logging(app)`.
+- Logging now emits at appropriate levels for 2xx/4xx/5xx outcomes, logs raised exceptions before re-raising them, and avoids duplicate handler registration across repeated app setup.
+- Created `api/tests/unit/test_todo_service.py` with 6 tests covering all TodoService business rules using mocked repository.
+- Created `api/tests/unit/test_todo_repository.py` with 5 tests covering all repository query logic using in-memory SQLite.
+- Created `api/tests/unit/test_logging.py` with 4 tests covering handler idempotence and request logging behavior for success, client errors, and raised exceptions.
+- Fixed `api/app/db/models/__init__.py` to re-export `Todo` so Alembic autogenerate correctly sees model metadata.
+- Updated `migrations/env.py` to use `_get_url()` helper for consistent URL resolution.
+- Verified Alembic end-to-end: `upgrade head` creates table, idempotent second run, `autogenerate` detects no delta.
+
+### File List
+
+- api/app/core/logging.py
+- api/app/main.py
+- api/app/db/models/__init__.py
+- api/migrations/env.py
+- api/.env.example
+- api/tests/unit/test_logging.py
+- api/tests/unit/__init__.py
+- api/tests/unit/test_todo_service.py
+- api/tests/unit/test_todo_repository.py
+
+### Change Log
+
+- 2026-03-30: Implemented Story 0.4 — added structured request logging, unit tests for service and repository layers, verified Alembic migrations end-to-end, and completed `.env.example` documentation.
+- 2026-03-30: Fixed Story 0.4 review findings by making request logging exception-safe and level-aware, preventing duplicate handlers, adding logging unit tests, and removing the tracked SQLite artifact from the diff.

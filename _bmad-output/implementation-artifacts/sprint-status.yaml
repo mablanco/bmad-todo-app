@@ -35,18 +35,18 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-27T15:36:45+01:00
-last_updated: 2026-03-27T20:00:00+01:00
+last_updated: 2026-03-31T10:00:00+02:00
 project: bmad-todo
 project_key: NOKEY
 tracking_system: file-system
 story_location: /home/mablanco/Repos/github/bmad-todo/_bmad-output/implementation-artifacts
 
 development_status:
-  epic-0: in-progress
+  epic-0: done
   0-1-bootstrap-the-fastapi-project-and-define-the-api-contract: done
   0-2-implement-the-todo-data-model-and-persistence-layer: done
   0-3-implement-todo-crud-endpoints-with-service-and-repository-layers: done
-  0-4-harden-the-backend-foundation: backlog
+  0-4-harden-the-backend-foundation: done
   epic-0-retrospective: optional
 
   epic-1: in-progress
