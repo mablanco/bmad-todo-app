@@ -1,12 +1,17 @@
 # bmad-todo-app
 
-Monorepo scaffold for the `bmad-todo-app` frontend, backend, and test infrastructure.
+A calm, focused todo application with a React frontend and FastAPI backend.
 
 ## Project Structure
 
-- `web/`: React + Vite frontend with Vitest and Playwright tooling
-- `api/`: Python backend scaffold with FastAPI and `pytest`
-- `tests/e2e/`: Root end-to-end tests
+- `web/` — React + TypeScript + Vite frontend with TanStack Query
+- `api/` — Python FastAPI backend with SQLAlchemy + SQLite
+- `tests/e2e/` — Playwright end-to-end tests
+
+## Prerequisites
+
+- Node.js 18+
+- Python 3.11+
 
 ## Bootstrap
 
@@ -25,6 +30,21 @@ npm run bootstrap:backend
 
 The backend bootstrap creates a local `.venv/` and installs the Python API dependencies there.
 
+## Environment Configuration
+
+Copy the example files and adjust as needed:
+
+```bash
+cp api/.env.example api/.env
+cp web/.env.example web/.env
+```
+
+| Variable | Location | Default | Description |
+|----------|----------|---------|-------------|
+| `DATABASE_URL` | `api/.env` | `sqlite:///./bmad_todo.db` | Database connection URL |
+| `LOG_LEVEL` | `api/.env` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
+| `VITE_API_BASE_URL` | `web/.env` | `http://127.0.0.1:8000` | Backend API base URL |
+
 ## Local Development
 
 Run frontend and backend together:
@@ -36,8 +56,8 @@ npm run dev
 Run one side only:
 
 ```bash
-npm run dev:frontend
-npm run dev:backend
+npm run dev:frontend   # http://localhost:5173
+npm run dev:backend    # http://127.0.0.1:8000
 ```
 
 If you prefer `make`, the root `Makefile` mirrors the same workflows:
@@ -49,34 +69,22 @@ make test
 make test-e2e
 ```
 
+## API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/v1/health` | Health check |
+| `GET` | `/api/v1/todos` | List all todos (newest-first) |
+| `POST` | `/api/v1/todos` | Create a todo |
+| `PATCH` | `/api/v1/todos/{todoId}` | Update a todo (toggle completion) |
+| `DELETE` | `/api/v1/todos/{todoId}` | Delete a todo |
+
 ## Test Commands
 
-Run all unit tests:
-
 ```bash
-npm run test
-```
-
-Run frontend unit tests only:
-
-```bash
-npm run test:frontend
-```
-
-Run backend unit tests only:
-
-```bash
-npm run test:backend
-```
-
-Run end-to-end tests:
-
-```bash
-npm run test:e2e
-```
-
-Run the full test suite:
-
-```bash
-npm run test:all
+npm run test           # All unit tests (frontend + backend)
+npm run test:frontend  # Frontend unit tests only (Vitest)
+npm run test:backend   # Backend unit tests only (pytest)
+npm run test:e2e       # End-to-end tests (Playwright)
+npm run test:all       # Full test suite
 ```

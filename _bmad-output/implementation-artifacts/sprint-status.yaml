@@ -70,9 +70,9 @@ development_status:
   3-4-optimize-the-experience-across-mobile-tablet-and-desktop: done
   epic-3-retrospective: optional
 
-  epic-4: backlog
-  4-1-complete-local-run-and-environment-documentation: backlog
-  4-2-harden-api-contract-reliability-and-error-consistency: backlog
-  4-3-establish-end-to-end-confidence-for-the-core-todo-loop: backlog
-  4-4-preserve-extensibility-and-maintenance-boundaries: backlog
+  epic-4: in-progress
+  4-1-complete-local-run-and-environment-documentation: review
+  4-2-harden-api-contract-reliability-and-error-consistency: review
+  4-3-establish-end-to-end-confidence-for-the-core-todo-loop: review
+  4-4-preserve-extensibility-and-maintenance-boundaries: review
   epic-4-retrospective: optional
