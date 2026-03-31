@@ -1,0 +1,37 @@
+# Version control
+.git
+.github
+
+# BMad and AI tooling
+_bmad
+_bmad-output
+.claude
+.agents
+.cursor
+
+# Node
+node_modules
+npm-debug.log
+playwright-report
+test-results
+
+# Python
+.venv
+.pytest_cache
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+
+# Build artifacts
+web/dist
+
+# IDE and OS
+.vscode
+.idea
+*.swp
+.DS_Store
+
+# Docker
+docker-compose*.yml
+Dockerfile
