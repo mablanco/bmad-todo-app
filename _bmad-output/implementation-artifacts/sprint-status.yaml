@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-27T15:36:45+01:00
-last_updated: 2026-03-31T13:55:00+02:00
+last_updated: 2026-03-31T18:45:00+02:00
 project: bmad-todo
 project_key: NOKEY
 tracking_system: file-system
@@ -70,9 +70,9 @@ development_status:
   3-4-optimize-the-experience-across-mobile-tablet-and-desktop: done
   epic-3-retrospective: optional
 
-  epic-4: in-progress
-  4-1-complete-local-run-and-environment-documentation: review
-  4-2-harden-api-contract-reliability-and-error-consistency: review
-  4-3-establish-end-to-end-confidence-for-the-core-todo-loop: review
-  4-4-preserve-extensibility-and-maintenance-boundaries: review
+  epic-4: done
+  4-1-complete-local-run-and-environment-documentation: done
+  4-2-harden-api-contract-reliability-and-error-consistency: done
+  4-3-establish-end-to-end-confidence-for-the-core-todo-loop: done
+  4-4-preserve-extensibility-and-maintenance-boundaries: done
   epic-4-retrospective: optional
