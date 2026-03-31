@@ -11,7 +11,7 @@
     "build:frontend": "npm --prefix web run build",
     "test:frontend": "npm --prefix web run test -- --run",
     "test:backend": "./.venv/bin/python -m pytest api/tests",
-    "test:e2e": "npm --prefix web exec playwright test --config ../playwright.config.ts",
+    "test:e2e": "npm --prefix web run test:e2e -- --config playwright.config.ts",
     "test": "npm run test:frontend && npm run test:backend",
     "test:all": "npm run test && npm run test:e2e"
   }

@@ -6,7 +6,7 @@ A calm, focused todo application with a React frontend and FastAPI backend.
 
 - `web/` — React + TypeScript + Vite frontend with TanStack Query
 - `api/` — Python FastAPI backend with SQLAlchemy + SQLite
-- `tests/e2e/` — Playwright end-to-end tests
+- `web/tests/e2e/` — Playwright end-to-end tests
 
 ## Prerequisites
 
@@ -43,6 +43,7 @@ cp web/.env.example web/.env
 |----------|----------|---------|-------------|
 | `DATABASE_URL` | `api/.env` | `sqlite:///./bmad_todo.db` | Database connection URL |
 | `LOG_LEVEL` | `api/.env` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
+| `ALLOWED_ORIGINS` | `api/.env` | local dev + E2E origins | Comma-separated frontend origins allowed by the API |
 | `VITE_API_BASE_URL` | `web/.env` | `http://127.0.0.1:8000` | Backend API base URL |
 
 ## Local Development
@@ -85,6 +86,8 @@ make test-e2e
 npm run test           # All unit tests (frontend + backend)
 npm run test:frontend  # Frontend unit tests only (Vitest)
 npm run test:backend   # Backend unit tests only (pytest)
-npm run test:e2e       # End-to-end tests (Playwright)
+npm run test:e2e       # End-to-end tests (Playwright, auto-starts frontend + backend)
 npm run test:all       # Full test suite
 ```
+
+`npm run test:e2e` uses an isolated SQLite database under `/tmp` and resets backend state between tests so the suite stays repeatable.
