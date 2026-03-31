@@ -1256,6 +1256,40 @@ describe('App', () => {
     })
   })
 
+  it('makes all interactive elements keyboard-focusable', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'a11y-item',
+              description: 'Accessibility test',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    await screen.findByRole('heading', { name: 'Your tasks' })
+
+    const input = screen.getByLabelText('Task description')
+    const addButton = screen.getByRole('button', { name: 'Add task' })
+    const toggleButton = screen.getByRole('button', { name: /mark complete/i })
+    const deleteButton = screen.getByRole('button', { name: /delete/i })
+
+    for (const el of [input, addButton, toggleButton, deleteButton]) {
+      el.focus()
+      expect(document.activeElement).toBe(el)
+    }
+  })
+
   it('shows description and timestamp for each todo item', async () => {
     fetchMock.mockResolvedValue(
       new Response(

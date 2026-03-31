@@ -63,11 +63,11 @@ development_status:
   2-4-preserve-trust-across-state-changes-and-reload: done
   epic-2-retrospective: optional
 
-  epic-3: backlog
-  3-1-apply-the-soft-calm-visual-foundation-to-the-todo-experience: backlog
-  3-2-implement-consistent-empty-loading-and-error-state-components: backlog
-  3-3-make-core-todo-flows-keyboard-accessible-and-screen-reader-friendly: backlog
-  3-4-optimize-the-experience-across-mobile-tablet-and-desktop: backlog
+  epic-3: in-progress
+  3-1-apply-the-soft-calm-visual-foundation-to-the-todo-experience: review
+  3-2-implement-consistent-empty-loading-and-error-state-components: review
+  3-3-make-core-todo-flows-keyboard-accessible-and-screen-reader-friendly: review
+  3-4-optimize-the-experience-across-mobile-tablet-and-desktop: review
   epic-3-retrospective: optional
 
   epic-4: backlog

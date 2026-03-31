@@ -127,6 +127,11 @@ input:focus-visible {
   border-radius: var(--radius-field);
   background: var(--color-surface-strong);
   color: var(--color-ink-950);
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.todo-composer__input:hover:not(:disabled) {
+  border-color: rgba(81, 98, 112, 0.35);
 }
 
 .todo-composer__input[aria-invalid='true'] {
@@ -151,6 +156,16 @@ input:focus-visible {
   color: #f7fbfa;
   font-weight: 700;
   box-shadow: 0 10px 24px rgba(44, 122, 116, 0.2);
+  transition: box-shadow 150ms ease, transform 150ms ease, opacity 150ms ease;
+}
+
+.todo-composer__button:hover:not(:disabled) {
+  box-shadow: 0 12px 28px rgba(44, 122, 116, 0.28);
+}
+
+.todo-composer__button:active:not(:disabled) {
+  transform: scale(0.98);
+  box-shadow: 0 6px 16px rgba(44, 122, 116, 0.15);
 }
 
 .todo-composer__button:disabled {
@@ -252,6 +267,15 @@ input:focus-visible {
   background: rgba(44, 122, 116, 0.12);
   color: var(--color-accent-600);
   font-weight: 700;
+  transition: background 150ms ease;
+}
+
+.todo-status-card__button:hover {
+  background: rgba(44, 122, 116, 0.2);
+}
+
+.todo-status-card__button:active {
+  background: rgba(44, 122, 116, 0.28);
 }
 
 .todo-status-card--error {
@@ -380,8 +404,12 @@ input:focus-visible {
   transition: background 150ms ease;
 }
 
-.todo-card__delete:hover {
+.todo-card__delete:hover:not(:disabled) {
   background: rgba(185, 87, 79, 0.16);
+}
+
+.todo-card__delete:active:not(:disabled) {
+  background: rgba(185, 87, 79, 0.24);
 }
 
 .todo-card__delete:disabled {
@@ -389,8 +417,12 @@ input:focus-visible {
   opacity: 0.65;
 }
 
-.todo-card__toggle:hover {
+.todo-card__toggle:hover:not(:disabled) {
   background: rgba(58, 147, 140, 0.2);
+}
+
+.todo-card__toggle:active:not(:disabled) {
+  background: rgba(58, 147, 140, 0.28);
 }
 
 .todo-card__toggle:disabled {
