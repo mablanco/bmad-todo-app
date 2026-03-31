@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-03-27T15:36:45+01:00
-last_updated: 2026-03-31T10:05:00+02:00
+last_updated: 2026-03-31T13:15:00+02:00
 project: bmad-todo
 project_key: NOKEY
 tracking_system: file-system
@@ -56,11 +56,11 @@ development_status:
   1-4-establish-capture-state-trust-signals: done
   epic-1-retrospective: optional
 
-  epic-2: in-progress
+  epic-2: done
   2-1-render-todo-items-with-clear-task-state-information: done
-  2-2-mark-a-todo-complete-or-active-from-the-list: review
-  2-3-delete-a-todo-cleanly-from-the-list: backlog
-  2-4-preserve-trust-across-state-changes-and-reload: backlog
+  2-2-mark-a-todo-complete-or-active-from-the-list: done
+  2-3-delete-a-todo-cleanly-from-the-list: done
+  2-4-preserve-trust-across-state-changes-and-reload: done
   epic-2-retrospective: optional
 
   epic-3: backlog

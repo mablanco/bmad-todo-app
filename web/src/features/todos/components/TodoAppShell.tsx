@@ -6,6 +6,7 @@ import { TodoErrorState } from './TodoErrorState'
 import { TodoList } from './TodoList'
 import { TodoLoadingState } from './TodoLoadingState'
 import { useTodos } from '../hooks/useTodos'
+import { useDeleteTodo } from '../hooks/useDeleteTodo'
 import { useUpdateTodo } from '../hooks/useUpdateTodo'
 
 export function TodoAppShell() {
@@ -18,9 +19,20 @@ export function TodoAppShell() {
     refetch,
   } = useTodos()
   const updateTodo = useUpdateTodo()
+  const removeTodo = useDeleteTodo()
+  const todoItems = todos ?? []
+  const hasTodos = todoItems.length > 0
+  const showBlockingError = Boolean(error && !hasTodos)
+  const blockingErrorMessage = showBlockingError
+    ? (error?.message ?? "Something went wrong. Try again.")
+    : null
 
   const handleToggle = (todoId: string, completed: boolean) => {
     updateTodo.mutate({ todoId, data: { completed } })
+  }
+
+  const handleDelete = (todoId: string) => {
+    removeTodo.mutate(todoId)
   }
 
   useEffect(() => {
@@ -43,22 +55,24 @@ export function TodoAppShell() {
 
   if (isLoading) {
     content = <TodoLoadingState />
-  } else if (error) {
+  } else if (showBlockingError) {
     content = (
       <TodoErrorState
         isRetrying={isFetching}
-        message={error.message}
+        message={blockingErrorMessage ?? "Something went wrong. Try again."}
         onRetry={() => {
           void refetch()
         }}
       />
     )
-  } else if (todos && todos.length > 0) {
+  } else if (hasTodos) {
     content = (
       <TodoList
+        deletingTodoId={removeTodo.isPending ? (removeTodo.variables ?? null) : null}
         highlightedTodoId={recentlyCreatedTodoId}
+        onDelete={handleDelete}
         onToggle={handleToggle}
-        todos={todos}
+        todos={todoItems}
         updatingTodoId={updateTodo.isPending ? (updateTodo.variables?.todoId ?? null) : null}
       />
     )
@@ -81,9 +95,14 @@ export function TodoAppShell() {
         <div className="todo-shell__body">
           <TodoComposer onCreated={setRecentlyCreatedTodoId} />
           {content}
-          {updateTodo.error && (
+          {error && hasTodos && (
             <p className="todo-shell__update-error" role="alert">
-              {updateTodo.error.message || "Couldn't update. Try again."}
+              {error.message}
+            </p>
+          )}
+          {(updateTodo.error || removeTodo.error) && (
+            <p className="todo-shell__update-error" role="alert">
+              {(updateTodo.error ?? removeTodo.error)?.message || "Something went wrong. Try again."}
             </p>
           )}
         </div>

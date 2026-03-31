@@ -2,14 +2,18 @@ import type { Todo } from '../types/todo'
 import { TodoListItem } from './TodoListItem'
 
 type TodoListProps = {
+  deletingTodoId?: string | null
   highlightedTodoId?: string | null
+  onDelete?: (todoId: string) => void
   onToggle?: (todoId: string, completed: boolean) => void
   todos: Todo[]
   updatingTodoId?: string | null
 }
 
 export function TodoList({
+  deletingTodoId = null,
   highlightedTodoId = null,
+  onDelete,
   onToggle,
   todos,
   updatingTodoId = null,
@@ -29,8 +33,10 @@ export function TodoList({
         {todos.map((todo) => (
           <li className="todo-list__item" key={todo.id}>
             <TodoListItem
+              isDeleting={todo.id === deletingTodoId}
               isHighlighted={todo.id === highlightedTodoId}
               isUpdating={todo.id === updatingTodoId}
+              onDelete={onDelete}
               onToggle={onToggle}
               todo={todo}
             />

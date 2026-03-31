@@ -37,6 +37,17 @@ export async function updateTodo(todoId: string, input: UpdateTodoInput): Promis
   }
 }
 
+export async function deleteTodo(todoId: string): Promise<void> {
+  try {
+    await apiRequest<void>(`/api/v1/todos/${todoId}`, { method: 'DELETE' })
+  } catch (error) {
+    if (error instanceof ApiError && error.code === 'NETWORK_ERROR') {
+      throw new ApiError('NETWORK_ERROR', "Couldn't delete. Check your connection and try again.")
+    }
+    throw error
+  }
+}
+
 export async function createTodo(input: CreateTodoInput) {
   try {
     const response = await apiRequest<TodoResponse>('/api/v1/todos', {

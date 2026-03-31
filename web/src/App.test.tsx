@@ -93,7 +93,7 @@ describe('App', () => {
     const items = screen.getAllByRole('listitem')
     expect(
       items.map((item) =>
-        within(item).getByText(/task$/i).textContent,
+        within(item).getByText(/task$/i, { selector: '.todo-card__description' }).textContent,
       ),
     ).toEqual([
       'Newer task',
@@ -635,11 +635,13 @@ describe('App', () => {
   })
 
   it('toggles an active todo to completed via PATCH and updates the UI', async () => {
+    let toggled = false
     fetchMock.mockImplementation(async (_input, init) => {
       const method = init?.method ?? 'GET'
       const url = typeof _input === 'string' ? _input : ''
 
       if (method === 'PATCH' && url.includes('/todos/active-item')) {
+        toggled = true
         return new Response(
           JSON.stringify({
             data: {
@@ -660,7 +662,7 @@ describe('App', () => {
             {
               id: 'active-item',
               description: 'Toggle me',
-              completed: false,
+              completed: toggled,
               created_at: '2026-03-27T09:00:00Z',
               updated_at: '2026-03-27T09:00:00Z',
             },
@@ -683,11 +685,13 @@ describe('App', () => {
   })
 
   it('toggles a completed todo back to active via PATCH', async () => {
+    let untoggled = false
     fetchMock.mockImplementation(async (_input, init) => {
       const method = init?.method ?? 'GET'
       const url = typeof _input === 'string' ? _input : ''
 
       if (method === 'PATCH' && url.includes('/todos/done-item')) {
+        untoggled = true
         return new Response(
           JSON.stringify({
             data: {
@@ -708,7 +712,7 @@ describe('App', () => {
             {
               id: 'done-item',
               description: 'Untoggle me',
-              completed: true,
+              completed: !untoggled,
               created_at: '2026-03-27T09:00:00Z',
               updated_at: '2026-03-27T09:00:00Z',
             },
@@ -802,6 +806,454 @@ describe('App', () => {
     expect(toggleButton).not.toBeDisabled()
     toggleButton.focus()
     expect(document.activeElement).toBe(toggleButton)
+  })
+
+  it('deletes a todo and removes it from the list', async () => {
+    let deleted = false
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'DELETE') {
+        deleted = true
+        return new Response(null, { status: 204 })
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: deleted
+            ? []
+            : [
+                {
+                  id: 'del-item',
+                  description: 'Remove me',
+                  completed: false,
+                  created_at: '2026-03-27T09:00:00Z',
+                  updated_at: '2026-03-27T09:00:00Z',
+                },
+              ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const deleteButton = await screen.findByRole('button', { name: /delete/i })
+    fireEvent.click(deleteButton)
+
+    await waitFor(() => {
+      expect(screen.queryByText('Remove me')).toBeNull()
+    })
+  })
+
+  it('transitions to empty state when the last todo is deleted', async () => {
+    let deleted = false
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'DELETE') {
+        deleted = true
+        return new Response(null, { status: 204 })
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: deleted
+            ? []
+            : [
+                {
+                  id: 'last-item',
+                  description: 'The only task',
+                  completed: false,
+                  created_at: '2026-03-27T09:00:00Z',
+                  updated_at: '2026-03-27T09:00:00Z',
+                },
+              ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const deleteButton = await screen.findByRole('button', { name: /delete/i })
+    fireEvent.click(deleteButton)
+
+    expect(await screen.findByRole('heading', { name: 'No tasks yet' })).toBeVisible()
+  })
+
+  it('rolls back deletion and shows error when DELETE fails', async () => {
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'DELETE') {
+        return new Response(
+          JSON.stringify({
+            error: {
+              code: 'SERVER_ERROR',
+              message: "Couldn't delete right now.",
+              details: {},
+            },
+          }),
+          { status: 500, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'fail-del',
+              description: 'Cannot delete me',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const deleteButton = await screen.findByRole('button', { name: /delete/i })
+    fireEvent.click(deleteButton)
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeVisible()
+    })
+
+    expect(screen.getByText('Cannot delete me')).toBeVisible()
+  })
+
+  it('makes the delete control keyboard-accessible', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'kb-del',
+              description: 'Keyboard delete test',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const deleteButton = await screen.findByRole('button', { name: /delete/i })
+    expect(deleteButton).not.toBeDisabled()
+    deleteButton.focus()
+    expect(document.activeElement).toBe(deleteButton)
+  })
+
+  it('reflects toggled completion state on refetch (simulated reload)', async () => {
+    let completed = false
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'PATCH') {
+        completed = true
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'reload-item',
+              description: 'Check after reload',
+              completed: true,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-31T12:00:00Z',
+            },
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'reload-item',
+              description: 'Check after reload',
+              completed,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const toggleButton = await screen.findByRole('button', { name: /mark complete/i })
+    fireEvent.click(toggleButton)
+
+    await waitFor(() => {
+      const card = screen.getByText('Check after reload').closest('.todo-card')
+      expect(card).toHaveClass('todo-card--completed')
+    })
+
+    // The onSettled invalidation triggers a refetch — verify the completed state persists
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(3) // initial GET + PATCH + refetch GET
+    })
+
+    const card = screen.getByText('Check after reload').closest('.todo-card')
+    expect(card).toHaveClass('todo-card--completed')
+  })
+
+  it('keeps the list visible and shows a local error if refetch fails after a successful toggle', async () => {
+    let completed = false
+
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'PATCH') {
+        completed = true
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'toggle-refetch-fail',
+              description: 'Stay visible after toggle',
+              completed: true,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-31T12:00:00Z',
+            },
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      if (completed) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              code: 'SERVER_ERROR',
+              message: 'Could not refresh your list, but your latest change was saved.',
+              details: {},
+            },
+          }),
+          { status: 500, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'toggle-refetch-fail',
+              description: 'Stay visible after toggle',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const toggleButton = await screen.findByRole('button', { name: /mark complete/i })
+    fireEvent.click(toggleButton)
+
+    await waitFor(() => {
+      const card = screen.getByText('Stay visible after toggle').closest('.todo-card')
+      expect(card).toHaveClass('todo-card--completed')
+    })
+
+    expect(
+      await screen.findByText('Could not refresh your list, but your latest change was saved.'),
+    ).toBeVisible()
+    expect(screen.getByText('Stay visible after toggle')).toBeVisible()
+    expect(
+      screen.queryByRole('heading', { name: "We couldn't load your tasks" }),
+    ).toBeNull()
+  })
+
+  it('reflects deleted item absence on refetch (simulated reload)', async () => {
+    let deleted = false
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'DELETE') {
+        deleted = true
+        return new Response(null, { status: 204 })
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: deleted
+            ? []
+            : [
+                {
+                  id: 'gone-item',
+                  description: 'Gone after reload',
+                  completed: false,
+                  created_at: '2026-03-27T09:00:00Z',
+                  updated_at: '2026-03-27T09:00:00Z',
+                },
+              ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const deleteButton = await screen.findByRole('button', { name: /delete/i })
+    fireEvent.click(deleteButton)
+
+    await waitFor(() => {
+      expect(screen.queryByText('Gone after reload')).toBeNull()
+    })
+
+    // The onSettled invalidation triggers a refetch — verify the item stays gone
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(3)
+    })
+
+    expect(screen.queryByText('Gone after reload')).toBeNull()
+  })
+
+  it('keeps the remaining list visible and shows a local error if refetch fails after delete', async () => {
+    let deleted = false
+
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'DELETE') {
+        deleted = true
+        return new Response(null, { status: 204 })
+      }
+
+      if (deleted) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              code: 'SERVER_ERROR',
+              message: 'Could not refresh your list, but your latest change was saved.',
+              details: {},
+            },
+          }),
+          { status: 500, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'delete-refetch-fail',
+              description: 'Remove me first',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+            {
+              id: 'survivor',
+              description: 'Stay visible after delete',
+              completed: false,
+              created_at: '2026-03-27T10:00:00Z',
+              updated_at: '2026-03-27T10:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const deleteButtons = await screen.findAllByRole('button', { name: /delete/i })
+    fireEvent.click(deleteButtons[1])
+
+    await waitFor(() => {
+      expect(screen.queryByText('Remove me first')).toBeNull()
+    })
+
+    expect(
+      await screen.findByText('Could not refresh your list, but your latest change was saved.'),
+    ).toBeVisible()
+    expect(screen.getByText('Stay visible after delete')).toBeVisible()
+    expect(
+      screen.queryByRole('heading', { name: "We couldn't load your tasks" }),
+    ).toBeNull()
+  })
+
+  it('maintains consistency after sequential toggle mutations', async () => {
+    let completed = false
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'PATCH') {
+        completed = !completed
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'seq-item',
+              description: 'Toggle twice',
+              completed,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-31T12:00:00Z',
+            },
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'seq-item',
+              description: 'Toggle twice',
+              completed,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    // First toggle: active → completed
+    const toggleButton = await screen.findByRole('button', { name: /mark complete/i })
+    fireEvent.click(toggleButton)
+
+    await waitFor(() => {
+      const card = screen.getByText('Toggle twice').closest('.todo-card')
+      expect(card).toHaveClass('todo-card--completed')
+    })
+
+    // Second toggle: completed → active
+    const toggleBack = await screen.findByRole('button', { name: /mark active/i })
+    fireEvent.click(toggleBack)
+
+    await waitFor(() => {
+      const card = screen.getByText('Toggle twice').closest('.todo-card')
+      expect(card).not.toHaveClass('todo-card--completed')
+    })
   })
 
   it('shows description and timestamp for each todo item', async () => {
