@@ -688,3 +688,102 @@ So that future additions like auth or per-user scoping do not require a rewrite.
 **When** they inspect tests, structure, and docs
 **Then** the intended extension points and boundaries are discoverable
 **And** the codebase remains maintainable rather than tightly coupled
+
+## Epic 5: Docker Containerization
+
+Use Docker Compose to containerize and orchestrate the application for consistent, reproducible local development and deployment.
+
+### Story 5.1: Create Optimized Dockerfiles for Frontend and Backend
+
+As a developer,
+I want Dockerfiles for frontend and backend with multi-stage builds, non-root users, and health checks,
+So that each service runs in a minimal, secure, production-ready container.
+
+**Requirements:** Supports NFR-003
+
+**Acceptance Criteria:**
+
+**Given** the backend Dockerfile exists
+**When** I build the backend image
+**Then** it uses a multi-stage build (install deps → copy app → runtime stage)
+**And** the final image runs as a non-root user
+**And** a HEALTHCHECK instruction is defined that hits `GET /api/v1/health`
+
+**Given** the frontend Dockerfile exists
+**When** I build the frontend image
+**Then** it uses a multi-stage build (install deps → build static assets → serve with nginx or similar)
+**And** the final image runs as a non-root user
+**And** a HEALTHCHECK instruction is defined
+
+**Given** both Dockerfiles
+**When** I build them
+**Then** each image is under 200MB and starts in under 5 seconds
+
+### Story 5.2: Create Docker Compose for Container Orchestration
+
+As a developer,
+I want a docker-compose.yml that orchestrates all containers with proper networking, volume mounts, and environment configuration,
+So that I can start the full stack with a single command.
+
+**Requirements:** Supports NFR-003
+
+**Acceptance Criteria:**
+
+**Given** `docker-compose.yml` exists
+**When** I run `docker compose up`
+**Then** the backend, frontend, and database services start
+**And** the frontend can reach the backend via the internal Docker network
+**And** the app is accessible on `http://localhost:3000` (frontend) and `http://localhost:8000` (backend)
+
+**Given** the compose file defines volume mounts
+**When** the database container restarts
+**Then** data persists across restarts via a named volume
+
+**Given** the compose file defines environment configuration
+**When** services start
+**Then** each service receives its environment variables from `.env` files or compose environment sections
+
+### Story 5.3: Implement Container Health Checks and Logging
+
+As a developer,
+I want containers to report health status and logs to be accessible via `docker compose logs`,
+So that I can monitor service health and debug issues.
+
+**Requirements:** Supports NFR-003
+
+**Acceptance Criteria:**
+
+**Given** the containers are running
+**When** I run `docker compose ps`
+**Then** each service shows a health status (healthy/unhealthy)
+
+**Given** the backend health endpoint exists at `/api/v1/health`
+**When** Docker health check runs
+**Then** the container reports healthy when the API responds 200
+
+**Given** logs are being produced
+**When** I run `docker compose logs`
+**Then** I can see structured logs from all services
+**And** logs are not lost on container restart (stdout/stderr capture)
+
+### Story 5.4: Support Dev and Test Environments via Compose Profiles
+
+As a developer,
+I want dev and test environment support through environment variables and compose profiles,
+So that I can switch between configurations without modifying the compose file.
+
+**Requirements:** Supports NFR-003
+
+**Acceptance Criteria:**
+
+**Given** compose profiles are defined
+**When** I run `docker compose --profile dev up`
+**Then** services start with development configuration (hot-reload, debug logging, source mounts)
+
+**Given** compose profiles are defined
+**When** I run `docker compose --profile test up`
+**Then** services start with test configuration (isolated database, test environment variables)
+
+**Given** environment variables are externalized
+**When** I need to change a configuration value
+**Then** I can override it via `.env` files or command-line `--env` without modifying `docker-compose.yml`
