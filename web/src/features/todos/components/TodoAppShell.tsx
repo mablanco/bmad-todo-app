@@ -6,6 +6,7 @@ import { TodoErrorState } from './TodoErrorState'
 import { TodoList } from './TodoList'
 import { TodoLoadingState } from './TodoLoadingState'
 import { useTodos } from '../hooks/useTodos'
+import { useUpdateTodo } from '../hooks/useUpdateTodo'
 
 export function TodoAppShell() {
   const [recentlyCreatedTodoId, setRecentlyCreatedTodoId] = useState<string | null>(null)
@@ -16,6 +17,11 @@ export function TodoAppShell() {
     isFetching,
     refetch,
   } = useTodos()
+  const updateTodo = useUpdateTodo()
+
+  const handleToggle = (todoId: string, completed: boolean) => {
+    updateTodo.mutate({ todoId, data: { completed } })
+  }
 
   useEffect(() => {
     if (!recentlyCreatedTodoId) {
@@ -48,7 +54,14 @@ export function TodoAppShell() {
       />
     )
   } else if (todos && todos.length > 0) {
-    content = <TodoList highlightedTodoId={recentlyCreatedTodoId} todos={todos} />
+    content = (
+      <TodoList
+        highlightedTodoId={recentlyCreatedTodoId}
+        onToggle={handleToggle}
+        todos={todos}
+        updatingTodoId={updateTodo.isPending ? (updateTodo.variables?.todoId ?? null) : null}
+      />
+    )
   }
 
   return (
@@ -68,6 +81,11 @@ export function TodoAppShell() {
         <div className="todo-shell__body">
           <TodoComposer onCreated={setRecentlyCreatedTodoId} />
           {content}
+          {updateTodo.error && (
+            <p className="todo-shell__update-error" role="alert">
+              {updateTodo.error.message || "Couldn't update. Try again."}
+            </p>
+          )}
         </div>
       </section>
     </main>

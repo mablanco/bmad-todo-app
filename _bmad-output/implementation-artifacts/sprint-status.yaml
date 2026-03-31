@@ -56,9 +56,9 @@ development_status:
   1-4-establish-capture-state-trust-signals: done
   epic-1-retrospective: optional
 
-  epic-2: backlog
-  2-1-render-todo-items-with-clear-task-state-information: backlog
-  2-2-mark-a-todo-complete-or-active-from-the-list: backlog
+  epic-2: in-progress
+  2-1-render-todo-items-with-clear-task-state-information: done
+  2-2-mark-a-todo-complete-or-active-from-the-list: review
   2-3-delete-a-todo-cleanly-from-the-list: backlog
   2-4-preserve-trust-across-state-changes-and-reload: backlog
   epic-2-retrospective: optional

@@ -325,16 +325,8 @@ input:focus-visible {
   transform: translateY(-1px);
 }
 
-.todo-card__status {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2rem;
-  padding: 0.2rem 0.7rem;
-  border-radius: var(--radius-pill);
-  background: rgba(58, 147, 140, 0.12);
-  color: var(--color-accent-600);
-  font-size: 0.85rem;
-  font-weight: 700;
+.todo-card__status-icon {
+  font-size: 0.95em;
 }
 
 .todo-card__description {
@@ -347,6 +339,71 @@ input:focus-visible {
   margin: 0.55rem 0 0;
   color: var(--color-ink-600);
   font-size: 0.92rem;
+}
+
+.todo-card__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  padding: 0.2rem 0.7rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: rgba(58, 147, 140, 0.12);
+  color: var(--color-accent-600);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.todo-card__toggle:hover {
+  background: rgba(58, 147, 140, 0.2);
+}
+
+.todo-card__toggle:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.todo-shell__update-error {
+  margin: 0;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-field);
+  background: rgba(185, 87, 79, 0.08);
+  color: var(--color-danger-600);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.todo-card--completed {
+  opacity: 0.88;
+}
+
+.todo-card--completed .todo-card__toggle {
+  background: rgba(81, 98, 112, 0.1);
+  color: var(--color-ink-600);
+}
+
+.todo-card--completed .todo-card__toggle:hover {
+  background: rgba(81, 98, 112, 0.18);
+}
+
+.todo-card--completed .todo-card__description {
+  color: var(--color-ink-400);
+  text-decoration: line-through;
 }
 
 @media (min-width: 640px) {

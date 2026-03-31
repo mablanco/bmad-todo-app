@@ -17,3 +17,8 @@ export type TodoResponse = {
 export type CreateTodoInput = {
   description: string
 }
+
+export type UpdateTodoInput = {
+  description?: string
+  completed?: boolean
+}

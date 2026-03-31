@@ -542,4 +542,293 @@ describe('App', () => {
       { timeout: 4000 },
     )
   }, 5000)
+
+  it('renders active and completed todos with distinct visual classes and status labels', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'active-item',
+              description: 'Still working on this',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+            {
+              id: 'completed-item',
+              description: 'Already done',
+              completed: true,
+              created_at: '2026-03-27T08:00:00Z',
+              updated_at: '2026-03-27T10:00:00Z',
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      ),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const activeItem = await screen.findByText('Still working on this')
+    const completedItem = await screen.findByText('Already done')
+
+    const activeCard = activeItem.closest('.todo-card')
+    const completedCard = completedItem.closest('.todo-card')
+
+    expect(activeCard).not.toHaveClass('todo-card--completed')
+    expect(completedCard).toHaveClass('todo-card--completed')
+
+    expect(within(activeCard as HTMLElement).getByText('Active')).toBeVisible()
+    expect(within(completedCard as HTMLElement).getByText('Completed')).toBeVisible()
+
+    expect(within(activeCard as HTMLElement).getByText('○')).toBeVisible()
+    expect(within(completedCard as HTMLElement).getByText('✓')).toBeVisible()
+  })
+
+  it('preserves fresh-item highlighting through the TodoListItem component', async () => {
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'POST') {
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'highlighted-via-item',
+              description: 'Fresh through TodoListItem',
+              completed: false,
+              created_at: '2026-03-27T16:00:00Z',
+              updated_at: '2026-03-27T16:00:00Z',
+            },
+          }),
+          {
+            status: 201,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
+      }
+
+      return new Response(JSON.stringify({ data: [] }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const form = await screen.findByRole('form', { name: 'Create a task' })
+    const input = screen.getByLabelText('Task description')
+
+    fireEvent.change(input, { target: { value: 'Fresh through TodoListItem' } })
+    fireEvent.submit(form)
+
+    const newTask = await screen.findByText('Fresh through TodoListItem')
+    const article = newTask.closest('.todo-card')
+
+    expect(article).toHaveClass('todo-card--fresh')
+    expect(article).not.toHaveClass('todo-card--completed')
+  })
+
+  it('toggles an active todo to completed via PATCH and updates the UI', async () => {
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+      const url = typeof _input === 'string' ? _input : ''
+
+      if (method === 'PATCH' && url.includes('/todos/active-item')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'active-item',
+              description: 'Toggle me',
+              completed: true,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-31T10:00:00Z',
+            },
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'active-item',
+              description: 'Toggle me',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const toggleButton = await screen.findByRole('button', { name: /mark complete/i })
+    fireEvent.click(toggleButton)
+
+    await waitFor(() => {
+      const card = screen.getByText('Toggle me').closest('.todo-card')
+      expect(card).toHaveClass('todo-card--completed')
+    })
+  })
+
+  it('toggles a completed todo back to active via PATCH', async () => {
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+      const url = typeof _input === 'string' ? _input : ''
+
+      if (method === 'PATCH' && url.includes('/todos/done-item')) {
+        return new Response(
+          JSON.stringify({
+            data: {
+              id: 'done-item',
+              description: 'Untoggle me',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-31T10:00:00Z',
+            },
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'done-item',
+              description: 'Untoggle me',
+              completed: true,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const toggleButton = await screen.findByRole('button', { name: /mark active/i })
+    fireEvent.click(toggleButton)
+
+    await waitFor(() => {
+      const card = screen.getByText('Untoggle me').closest('.todo-card')
+      expect(card).not.toHaveClass('todo-card--completed')
+    })
+  })
+
+  it('rolls back optimistic toggle and shows error when PATCH fails', async () => {
+    fetchMock.mockImplementation(async (_input, init) => {
+      const method = init?.method ?? 'GET'
+
+      if (method === 'PATCH') {
+        return new Response(
+          JSON.stringify({
+            error: {
+              code: 'SERVER_ERROR',
+              message: "Couldn't update right now.",
+              details: {},
+            },
+          }),
+          { status: 500, headers: { 'Content-Type': 'application/json' } },
+        )
+      }
+
+      return new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'fail-item',
+              description: 'Will fail to toggle',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const toggleButton = await screen.findByRole('button', { name: /mark complete/i })
+    fireEvent.click(toggleButton)
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeVisible()
+    })
+
+    const card = screen.getByText('Will fail to toggle').closest('.todo-card')
+    expect(card).not.toHaveClass('todo-card--completed')
+  })
+
+  it('makes the toggle control keyboard-accessible', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'kb-item',
+              description: 'Keyboard test',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    const toggleButton = await screen.findByRole('button', { name: /mark complete/i })
+    expect(toggleButton).not.toBeDisabled()
+    toggleButton.focus()
+    expect(document.activeElement).toBe(toggleButton)
+  })
+
+  it('shows description and timestamp for each todo item', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: [
+            {
+              id: 'detail-item',
+              description: 'Check item details',
+              completed: false,
+              created_at: '2026-03-27T14:30:00Z',
+              updated_at: '2026-03-27T14:30:00Z',
+            },
+          ],
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      ),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    expect(await screen.findByText('Check item details')).toBeVisible()
+    expect(screen.getByText(/Added.*Mar.*2026/)).toBeVisible()
+  })
 });
