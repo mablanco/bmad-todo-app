@@ -1,0 +1,56 @@
+services:
+  api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:////app/data/bmad_todo.db
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - api-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "/app/healthcheck.py"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+
+  web:
+    build:
+      context: ./web
+      args:
+        VITE_API_BASE_URL: ""
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # Dev profile: source-mounted backend with auto-reload
+  api-dev:
+    build: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:////app/data/bmad_todo.db
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./api/app:/app/app:ro
+      - api-data:/app/data
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    profiles:
+      - dev
+
+  # Test profile: isolated database, test-level logging
+  api-test:
+    build: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:////tmp/test_bmad_todo.db
+      - LOG_LEVEL=WARNING
+    profiles:
+      - test
+
+volumes:
+  api-data:

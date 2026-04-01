@@ -79,7 +79,7 @@ development_status:
 
   epic-5: in-progress
   5-1-create-optimized-dockerfiles-for-frontend-and-backend: review
-  5-2-create-docker-compose-for-container-orchestration: backlog
+  5-2-create-docker-compose-for-container-orchestration: review
   5-3-implement-container-health-checks-and-logging: backlog
   5-4-support-dev-and-test-environments-via-compose-profiles: backlog
   epic-5-retrospective: optional

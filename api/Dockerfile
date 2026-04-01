@@ -23,7 +23,8 @@ COPY app/ ./app/
 COPY migrations/ ./migrations/
 COPY alembic.ini .
 
-RUN printf '#!/usr/bin/env python3\nimport urllib.request, sys\ntry:\n    r = urllib.request.urlopen("http://localhost:8000/api/v1/health")\n    sys.exit(0 if r.status == 200 else 1)\nexcept Exception:\n    sys.exit(1)\n' > /app/healthcheck.py \
+RUN mkdir -p /app/data \
+    && printf '#!/usr/bin/env python3\nimport urllib.request, sys\ntry:\n    r = urllib.request.urlopen("http://localhost:8000/api/v1/health")\n    sys.exit(0 if r.status == 200 else 1)\nexcept Exception:\n    sys.exit(1)\n' > /app/healthcheck.py \
     && chmod +x /app/healthcheck.py \
     && chown -R appuser:appuser /app
 
