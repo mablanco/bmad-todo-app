@@ -30,7 +30,7 @@ services:
   api-dev:
     build: ./api
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - DATABASE_URL=sqlite:////app/data/bmad_todo.db
       - LOG_LEVEL=DEBUG
@@ -45,7 +45,7 @@ services:
   api-test:
     build: ./api
     ports:
-      - "8000:8000"
+      - "8002:8000"
     environment:
       - DATABASE_URL=sqlite:////tmp/test_bmad_todo.db
       - LOG_LEVEL=WARNING

@@ -13,13 +13,19 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN npm run build
 
 # Stage 2: Serve with nginx
-FROM nginx:alpine
+FROM nginxinc/nginx-unprivileged:alpine
 
-# Remove default config
+USER root
+
+# Replace default config and ensure runtime paths remain readable
 RUN rm /etc/nginx/conf.d/default.conf
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
+
+RUN chown -R 101:0 /usr/share/nginx/html /etc/nginx/conf.d
+
+USER 101
 
 EXPOSE 3000
 
