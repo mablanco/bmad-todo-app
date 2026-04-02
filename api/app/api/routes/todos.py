@@ -12,7 +12,7 @@ from app.services.todo_service import TodoService
 router = APIRouter(prefix="/todos", tags=["todos"])
 
 DBSession = Annotated[Session, Depends(get_db)]
-TodoId = Annotated[str, Path(min_length=1, max_length=36)]
+TodoId = Annotated[str, Path(min_length=36, max_length=36, pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")]
 
 
 def build_service(db: Session) -> TodoService:

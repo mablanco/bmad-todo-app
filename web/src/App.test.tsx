@@ -161,7 +161,7 @@ describe('App', () => {
     expect(
       await screen.findByRole('heading', { name: "We couldn't load your tasks" }),
     ).toBeVisible()
-    expect(screen.getByText('The list is unavailable right now.')).toBeVisible()
+    expect(screen.getByText('Something went wrong on our end. Try again shortly.')).toBeVisible()
 
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }))
 
@@ -308,7 +308,7 @@ describe('App', () => {
     fireEvent.submit(form)
 
     expect(
-      await screen.findByText("We couldn't save your task right now. Try again."),
+      await screen.findByText('Something went wrong on our end. Try again shortly.'),
     ).toBeVisible()
     expect(input).toHaveValue('Keep this draft intact')
     expect(fetchMock).toHaveBeenCalledTimes(2)
@@ -1041,7 +1041,7 @@ describe('App', () => {
           JSON.stringify({
             error: {
               code: 'SERVER_ERROR',
-              message: 'Could not refresh your list, but your latest change was saved.',
+              message: 'Something went wrong on our end. Try again shortly.',
               details: {},
             },
           }),
@@ -1077,7 +1077,7 @@ describe('App', () => {
     })
 
     expect(
-      await screen.findByText('Could not refresh your list, but your latest change was saved.'),
+      await screen.findByText('Something went wrong on our end. Try again shortly.'),
     ).toBeVisible()
     expect(screen.getByText('Stay visible after toggle')).toBeVisible()
     expect(
@@ -1147,7 +1147,7 @@ describe('App', () => {
           JSON.stringify({
             error: {
               code: 'SERVER_ERROR',
-              message: 'Could not refresh your list, but your latest change was saved.',
+              message: 'Something went wrong on our end. Try again shortly.',
               details: {},
             },
           }),
@@ -1189,7 +1189,7 @@ describe('App', () => {
     })
 
     expect(
-      await screen.findByText('Could not refresh your list, but your latest change was saved.'),
+      await screen.findByText('Something went wrong on our end. Try again shortly.'),
     ).toBeVisible()
     expect(screen.getByText('Stay visible after delete')).toBeVisible()
     expect(

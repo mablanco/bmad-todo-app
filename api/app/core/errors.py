@@ -33,13 +33,17 @@ async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
 
 
 async def validation_error_handler(_: Request, exc: RequestValidationError) -> JSONResponse:
-    details = {"issues": jsonable_encoder(exc.errors())}
+    field_errors = []
+    for err in exc.errors():
+        loc = err.get("loc", ())
+        field = loc[-1] if loc else "unknown"
+        field_errors.append({"field": field, "message": err.get("msg", "Invalid value")})
     return JSONResponse(
         status_code=422,
         content=error_payload(
             "VALIDATION_ERROR",
-            "Request validation failed.",
-            details,
+            "Please check your input and try again.",
+            {"fields": field_errors} if field_errors else {},
         ),
     )
 

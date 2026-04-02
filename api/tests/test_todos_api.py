@@ -53,7 +53,7 @@ def test_update_todo_can_toggle_completion(client: TestClient) -> None:
 
 
 def test_update_todo_returns_not_found_for_missing_id(client: TestClient) -> None:
-    response = client.patch("/api/v1/todos/missing-id", json={"completed": True})
+    response = client.patch("/api/v1/todos/00000000-0000-0000-0000-000000000000", json={"completed": True})
 
     assert response.status_code == 404
     assert response.json() == {
@@ -76,7 +76,7 @@ def test_delete_todo_removes_resource(client: TestClient) -> None:
 
 
 def test_delete_todo_returns_not_found_for_missing_id(client: TestClient) -> None:
-    response = client.delete("/api/v1/todos/missing-id")
+    response = client.delete("/api/v1/todos/00000000-0000-0000-0000-000000000000")
 
     assert response.status_code == 404
     assert response.json() == {
