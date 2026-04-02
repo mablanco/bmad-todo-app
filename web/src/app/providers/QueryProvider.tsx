@@ -10,6 +10,7 @@ export function QueryProvider({ children }: PropsWithChildren) {
           queries: {
             retry: false,
             refetchOnWindowFocus: false,
+            staleTime: 5 * 60 * 1000,
           },
         },
       }),

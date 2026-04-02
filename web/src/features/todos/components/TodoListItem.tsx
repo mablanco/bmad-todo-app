@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { Todo } from '../types/todo'
 
 type TodoListItemProps = {
@@ -16,7 +17,7 @@ function formatCreatedAt(value: string) {
   }).format(new Date(value))
 }
 
-export function TodoListItem({
+export const TodoListItem = memo(function TodoListItem({
   isDeleting = false,
   isHighlighted = false,
   isUpdating = false,
@@ -66,4 +67,4 @@ export function TodoListItem({
       <p className="todo-card__timestamp">Added {formatCreatedAt(todo.created_at)}</p>
     </article>
   )
-}
+})

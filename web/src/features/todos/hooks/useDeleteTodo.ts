@@ -24,8 +24,5 @@ export function useDeleteTodo() {
         queryClient.setQueryData(['todos'], context.previousTodos)
       }
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['todos'] })
-    },
   })
 }

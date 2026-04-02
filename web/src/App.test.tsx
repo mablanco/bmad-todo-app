@@ -957,18 +957,16 @@ describe('App', () => {
     expect(document.activeElement).toBe(deleteButton)
   })
 
-  it('reflects toggled completion state on refetch (simulated reload)', async () => {
-    let completed = false
+  it('reflects toggled completion state via onSuccess cache update', async () => {
     fetchMock.mockImplementation(async (_input, init) => {
       const method = init?.method ?? 'GET'
 
       if (method === 'PATCH') {
-        completed = true
         return new Response(
           JSON.stringify({
             data: {
               id: 'reload-item',
-              description: 'Check after reload',
+              description: 'Check after toggle',
               completed: true,
               created_at: '2026-03-27T09:00:00Z',
               updated_at: '2026-03-31T12:00:00Z',
@@ -983,78 +981,7 @@ describe('App', () => {
           data: [
             {
               id: 'reload-item',
-              description: 'Check after reload',
-              completed,
-              created_at: '2026-03-27T09:00:00Z',
-              updated_at: '2026-03-27T09:00:00Z',
-            },
-          ],
-        }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } },
-      )
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    render(<App />)
-
-    const toggleButton = await screen.findByRole('button', { name: /mark complete/i })
-    fireEvent.click(toggleButton)
-
-    await waitFor(() => {
-      const card = screen.getByText('Check after reload').closest('.todo-card')
-      expect(card).toHaveClass('todo-card--completed')
-    })
-
-    // The onSettled invalidation triggers a refetch — verify the completed state persists
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(3) // initial GET + PATCH + refetch GET
-    })
-
-    const card = screen.getByText('Check after reload').closest('.todo-card')
-    expect(card).toHaveClass('todo-card--completed')
-  })
-
-  it('keeps the list visible and shows a local error if refetch fails after a successful toggle', async () => {
-    let completed = false
-
-    fetchMock.mockImplementation(async (_input, init) => {
-      const method = init?.method ?? 'GET'
-
-      if (method === 'PATCH') {
-        completed = true
-        return new Response(
-          JSON.stringify({
-            data: {
-              id: 'toggle-refetch-fail',
-              description: 'Stay visible after toggle',
-              completed: true,
-              created_at: '2026-03-27T09:00:00Z',
-              updated_at: '2026-03-31T12:00:00Z',
-            },
-          }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } },
-        )
-      }
-
-      if (completed) {
-        return new Response(
-          JSON.stringify({
-            error: {
-              code: 'SERVER_ERROR',
-              message: 'Something went wrong on our end. Try again shortly.',
-              details: {},
-            },
-          }),
-          { status: 500, headers: { 'Content-Type': 'application/json' } },
-        )
-      }
-
-      return new Response(
-        JSON.stringify({
-          data: [
-            {
-              id: 'toggle-refetch-fail',
-              description: 'Stay visible after toggle',
+              description: 'Check after toggle',
               completed: false,
               created_at: '2026-03-27T09:00:00Z',
               updated_at: '2026-03-27T09:00:00Z',
@@ -1072,42 +999,33 @@ describe('App', () => {
     fireEvent.click(toggleButton)
 
     await waitFor(() => {
-      const card = screen.getByText('Stay visible after toggle').closest('.todo-card')
+      const card = screen.getByText('Check after toggle').closest('.todo-card')
       expect(card).toHaveClass('todo-card--completed')
     })
 
-    expect(
-      await screen.findByText('Something went wrong on our end. Try again shortly.'),
-    ).toBeVisible()
-    expect(screen.getByText('Stay visible after toggle')).toBeVisible()
-    expect(
-      screen.queryByRole('heading', { name: "We couldn't load your tasks" }),
-    ).toBeNull()
+    // onSuccess updates cache directly — no extra refetch needed
+    expect(fetchMock).toHaveBeenCalledTimes(2) // initial GET + PATCH only
   })
 
-  it('reflects deleted item absence on refetch (simulated reload)', async () => {
-    let deleted = false
+  it('reflects deleted item absence via optimistic cache update', async () => {
     fetchMock.mockImplementation(async (_input, init) => {
       const method = init?.method ?? 'GET'
 
       if (method === 'DELETE') {
-        deleted = true
         return new Response(null, { status: 204 })
       }
 
       return new Response(
         JSON.stringify({
-          data: deleted
-            ? []
-            : [
-                {
-                  id: 'gone-item',
-                  description: 'Gone after reload',
-                  completed: false,
-                  created_at: '2026-03-27T09:00:00Z',
-                  updated_at: '2026-03-27T09:00:00Z',
-                },
-              ],
+          data: [
+            {
+              id: 'gone-item',
+              description: 'Gone after delete',
+              completed: false,
+              created_at: '2026-03-27T09:00:00Z',
+              updated_at: '2026-03-27T09:00:00Z',
+            },
+          ],
         }),
         { status: 200, headers: { 'Content-Type': 'application/json' } },
       )
@@ -1120,81 +1038,11 @@ describe('App', () => {
     fireEvent.click(deleteButton)
 
     await waitFor(() => {
-      expect(screen.queryByText('Gone after reload')).toBeNull()
+      expect(screen.queryByText('Gone after delete')).toBeNull()
     })
 
-    // The onSettled invalidation triggers a refetch — verify the item stays gone
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(3)
-    })
-
-    expect(screen.queryByText('Gone after reload')).toBeNull()
-  })
-
-  it('keeps the remaining list visible and shows a local error if refetch fails after delete', async () => {
-    let deleted = false
-
-    fetchMock.mockImplementation(async (_input, init) => {
-      const method = init?.method ?? 'GET'
-
-      if (method === 'DELETE') {
-        deleted = true
-        return new Response(null, { status: 204 })
-      }
-
-      if (deleted) {
-        return new Response(
-          JSON.stringify({
-            error: {
-              code: 'SERVER_ERROR',
-              message: 'Something went wrong on our end. Try again shortly.',
-              details: {},
-            },
-          }),
-          { status: 500, headers: { 'Content-Type': 'application/json' } },
-        )
-      }
-
-      return new Response(
-        JSON.stringify({
-          data: [
-            {
-              id: 'delete-refetch-fail',
-              description: 'Remove me first',
-              completed: false,
-              created_at: '2026-03-27T09:00:00Z',
-              updated_at: '2026-03-27T09:00:00Z',
-            },
-            {
-              id: 'survivor',
-              description: 'Stay visible after delete',
-              completed: false,
-              created_at: '2026-03-27T10:00:00Z',
-              updated_at: '2026-03-27T10:00:00Z',
-            },
-          ],
-        }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } },
-      )
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    render(<App />)
-
-    const deleteButtons = await screen.findAllByRole('button', { name: /delete/i })
-    fireEvent.click(deleteButtons[1])
-
-    await waitFor(() => {
-      expect(screen.queryByText('Remove me first')).toBeNull()
-    })
-
-    expect(
-      await screen.findByText('Something went wrong on our end. Try again shortly.'),
-    ).toBeVisible()
-    expect(screen.getByText('Stay visible after delete')).toBeVisible()
-    expect(
-      screen.queryByRole('heading', { name: "We couldn't load your tasks" }),
-    ).toBeNull()
+    // Optimistic removal — no extra refetch needed
+    expect(fetchMock).toHaveBeenCalledTimes(2) // initial GET + DELETE only
   })
 
   it('maintains consistency after sequential toggle mutations', async () => {

@@ -38,8 +38,5 @@ export function useUpdateTodo() {
         ),
       )
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: ['todos'] })
-    },
   })
 }
