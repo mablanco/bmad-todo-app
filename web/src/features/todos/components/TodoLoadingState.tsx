@@ -1,6 +1,7 @@
 export function TodoLoadingState() {
   return (
     <section
+      aria-busy="true"
       aria-live="polite"
       aria-labelledby="todo-loading-title"
       className="todo-status-card"

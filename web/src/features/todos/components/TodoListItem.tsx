@@ -59,7 +59,6 @@ export function TodoListItem({
           type="button"
         >
           <span aria-hidden="true">×</span>
-          <span className="sr-only">Delete {todo.description}</span>
           Delete
         </button>
       </div>

@@ -123,6 +123,7 @@ export function TodoComposer({ onCreated }: TodoComposerProps) {
           name="description"
           onChange={handleChange}
           ref={inputRef}
+          required
           value={description}
           type="text"
           placeholder="Write down the next thing you want to remember."
