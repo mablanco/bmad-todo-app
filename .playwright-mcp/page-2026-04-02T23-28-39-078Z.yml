@@ -1,0 +1,33 @@
+- main [ref=e3]:
+  - region "Capture what matters now" [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: bmad-todo-app
+      - heading "Capture what matters now" [level=1] [ref=e7]
+      - paragraph [ref=e8]: A calm, single place to collect the next task without noise or guesswork.
+    - generic [ref=e9]:
+      - form "Create a task" [ref=e10]:
+        - generic [ref=e11]: Task description
+        - generic [ref=e12]:
+          - textbox "Task description" [active] [ref=e13]:
+            - /placeholder: Write down the next thing you want to remember.
+          - button "Add task" [ref=e14] [cursor=pointer]
+        - status [ref=e20]: "Added: Write project documentation"
+        - paragraph [ref=e15]: Keep it short and clear. Tasks can be up to 500 characters.
+      - region "Your tasks" [ref=e21]:
+        - generic [ref=e22]:
+          - heading "Your tasks" [level=2] [ref=e23]
+          - paragraph [ref=e24]: 1 task
+        - list [ref=e25]:
+          - listitem [ref=e26]:
+            - article "Write project documentation — Active" [ref=e27]:
+              - generic [ref=e28]:
+                - button "Active Mark complete" [ref=e29] [cursor=pointer]:
+                  - generic [ref=e30]: ○
+                  - generic [ref=e31]: Active
+                  - generic [ref=e32]: Mark complete
+                - button "Delete Write project documentation Delete" [ref=e33] [cursor=pointer]:
+                  - generic [ref=e34]: ×
+                  - generic [ref=e35]: Delete Write project documentation
+                  - text: Delete
+              - paragraph [ref=e36]: Write project documentation
+              - paragraph [ref=e37]: Added Apr 2, 2026, 11:28 PM

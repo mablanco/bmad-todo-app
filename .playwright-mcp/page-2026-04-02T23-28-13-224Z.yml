@@ -1,0 +1,18 @@
+- main [ref=e3]:
+  - region "Capture what matters now" [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: bmad-todo-app
+      - heading "Capture what matters now" [level=1] [ref=e7]
+      - paragraph [ref=e8]: A calm, single place to collect the next task without noise or guesswork.
+    - generic [ref=e9]:
+      - form "Create a task" [ref=e10]:
+        - generic [ref=e11]: Task description
+        - generic [ref=e12]:
+          - textbox "Task description" [ref=e13]:
+            - /placeholder: Write down the next thing you want to remember.
+          - button "Add task" [ref=e14] [cursor=pointer]
+        - paragraph [ref=e15]: Keep it short and clear. Tasks can be up to 500 characters.
+      - region "No tasks yet" [ref=e16]:
+        - heading "No tasks yet" [level=2] [ref=e17]
+        - paragraph [ref=e18]: Start with one clear next step. It will show up here as soon as you add it.
+        - paragraph [ref=e19]: ↳ Use the field above to capture your first task.
