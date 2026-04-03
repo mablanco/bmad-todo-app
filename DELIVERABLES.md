@@ -176,6 +176,7 @@ All browser testing screenshots: [_bmad-output/qa-playwright-evidence/](_bmad-ou
 | Document | Path | Purpose |
 |----------|------|---------|
 | Project README | [README.md](README.md) | Setup, dev, test, and API reference |
+| AI Development Log | [AI-DEVELOPMENT-LOG.md](AI-DEVELOPMENT-LOG.md) | Agent usage, MCP servers, test generation, debugging, limitations |
 | Final Retrospective | [_bmad-output/implementation-artifacts/final-retrospective-2026-03-31.md](_bmad-output/implementation-artifacts/final-retrospective-2026-03-31.md) | How BMAD guided implementation, lessons learned |
 | Sprint Status (final) | [_bmad-output/implementation-artifacts/sprint-status.yaml](_bmad-output/implementation-artifacts/sprint-status.yaml) | All 6 epics, 24 stories — done |
 | Deferred Work | [_bmad-output/implementation-artifacts/deferred-work.md](_bmad-output/implementation-artifacts/deferred-work.md) | Items tracked for future work |
