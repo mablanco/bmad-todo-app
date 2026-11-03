@@ -1,5 +1,7 @@
 # bmad-todo-app
 
+> **Archived:** this was a training project to learn the BMad Method. It served its purpose and will not be maintained, so its dependencies will get outdated. It stays here as a reference of the process.
+
 A calm, focused todo application with a React frontend and FastAPI backend, built entirely using the [BMad Method](https://github.com/bmadcode/BMAD-METHOD) as a proof of concept for AI-driven software development.
 
 This project demonstrates the full BMad lifecycle — from product brief and architecture through implementation, testing, Docker containerization, and QA — with AI agents (Claude Code, Codex/GPT-5.4, Cursor, Gemini CLI) handling planning, coding, code review, and quality assurance under human oversight. See [AI-DEVELOPMENT-LOG.md](AI-DEVELOPMENT-LOG.md) for a detailed account of how AI was used and where human expertise was critical.
